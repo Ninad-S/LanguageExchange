@@ -13,7 +13,7 @@ Team #3
 - Tarun Sankar
 - Nasir Johnson
 - Rumaisa Bhatti
-- Alejandrina Majalca Medina
+- Alix Majalca
 
 <h4>Statement of Work: </h4>
 Users will get the opportunity to learn a new language through a web application by connecting with native speakers of their desired language and exchanging their native language in return with the user of choice.
