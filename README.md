@@ -3,8 +3,8 @@ Class: 3354.002
 
 <h2>Team Details:</h2>
 Team #3
-<br>Team Name: Language Exchange Project
-<br><h4>Team names: GlobaLingo </h4>
+<br>Team Name: GlobaLingo
+<br><h4>Team names: </h4>
 
 - Dandan Wang
 - Nevin Shiju
