@@ -9,7 +9,7 @@ Team #3
 - Dandan Wang
 - Nevin Shiju
 - Maggie Buvanendiran
-- xxxx xxxx
+- Ninad Sudarsanam
 - xxxx xxxx
 - xxxx xxxx
 - xxxx xxxx
