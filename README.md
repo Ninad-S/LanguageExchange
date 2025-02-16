@@ -1,5 +1,5 @@
 Class: 3354.002
-Professor: Srimathi Srinivasan
+<br>Professor: Srimathi Srinivasan
 
 <h2>Team Details:</h2>
 Team #3
