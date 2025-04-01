@@ -1,6 +1,9 @@
 .pricing-container {
     font-family: Arial, sans-serif;
     max-width: 1200px;
+    min-height: 100vh; /* Make container full viewport height */
+    display: flex;
+    flex-direction: column;
     margin: 0 auto;
     padding: 20px;
   }
@@ -22,7 +25,8 @@
     display: flex;
     justify-content: center;
     gap: 30px;
-    margin-bottom: 40px;
+    margin: auto 0; /* This will center vertically in remaining space */
+    padding: 20px 0;
   }
   
   .plan-card {
@@ -81,7 +85,8 @@
   
   .footer {
     text-align: center;
-    margin-top: 40px;
+    margin-top: auto; /* Pushes footer to bottom */
+    padding: 20px 0;
     color: #666;
     font-size: 0.9rem;
   }
