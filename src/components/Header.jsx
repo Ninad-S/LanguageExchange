@@ -34,6 +34,7 @@ const Header = () => {
             {showDropdown === 1 && (
               <ul style={{ position: 'absolute', backgroundColor: '#f9f9f9', padding: '10px', border: '1px solid #ccc', listStyle: 'none' }}>
                 <li><Link to="/language-quiz">Language Quiz</Link></li>
+                <li><Link to="/saved-words">Saved Words</Link></li>
               </ul>
             )}
           </li>
