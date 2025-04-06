@@ -1,60 +1,83 @@
 // src/pages/DiscussionBoard.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../firebase';
 
 const DiscussionBoard = () => {
-  // 帖子状态
   const [posts, setPosts] = useState([]);
   const [newPostTitle, setNewPostTitle] = useState('');
   const [newPostContent, setNewPostContent] = useState('');
+  const [comments, setComments] = useState({}); // { postId: [comments] }
+  const [commentInputMap, setCommentInputMap] = useState({}); // { postId: "comment" }
 
-  // 评论状态
-  const [newComment, setNewComment] = useState('');
-  const [comments, setComments] = useState({}); // 按帖子 ID 存储评论
+  // Load posts and their comments
+  useEffect(() => {
+    const q = query(collection(db, 'posts'), orderBy('timestamp', 'desc'));
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      const loadedPosts = [];
+      const loadedComments = {};
 
-  // 创建新帖子
-  const handleCreatePost = (e) => {
+      for (const doc of snapshot.docs) {
+        const post = { id: doc.id, ...doc.data() };
+
+        const commentSnap = await getDocs(collection(db, 'posts', doc.id, 'comments'));
+        loadedComments[post.id] = commentSnap.docs.map((c) => ({
+          id: c.id,
+          ...c.data(),
+        }));
+
+        loadedPosts.push(post);
+      }
+
+      setPosts(loadedPosts);
+      setComments(loadedComments);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleCreatePost = async (e) => {
     e.preventDefault();
     if (!newPostTitle || !newPostContent) return;
 
-    const newPost = {
-      id: Date.now(), // 使用时间戳作为唯一 ID
+    await addDoc(collection(db, 'posts'), {
       title: newPostTitle,
       content: newPostContent,
       author: 'Anonymous',
-      timestamp: new Date().toLocaleString(),
-    };
+      timestamp: serverTimestamp(),
+    });
 
-    setPosts([...posts, newPost]);
     setNewPostTitle('');
     setNewPostContent('');
   };
 
-  // 创建新评论
-  const handleCreateComment = (postId) => {
-    if (!newComment) return;
+  const handleCreateComment = async (postId) => {
+    const commentText = commentInputMap[postId];
+    if (!commentText) return;
 
-    const newCommentObj = {
-      id: Date.now(), // 使用时间戳作为唯一 ID
-      postId,
-      content: newComment,
+    await addDoc(collection(db, 'posts', postId, 'comments'), {
+      content: commentText,
       author: 'Anonymous',
-      timestamp: new Date().toLocaleString(),
-    };
+      timestamp: serverTimestamp(),
+    });
 
-    // 更新评论状态
-    setComments((prevComments) => ({
-      ...prevComments,
-      [postId]: [...(prevComments[postId] || []), newCommentObj],
-    }));
-
-    setNewComment('');
+    // Clear input for just that post
+    setCommentInputMap((prev) => ({ ...prev, [postId]: '' }));
   };
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Discussion Board</h1>
 
-      {/* 创建新帖子表单 */}
+      {/* Create new post */}
       <form onSubmit={handleCreatePost} style={{ marginBottom: '20px' }}>
         <div>
           <label>Title:</label>
@@ -78,30 +101,45 @@ const DiscussionBoard = () => {
         <button type="submit">Create Post</button>
       </form>
 
-      {/* 显示所有帖子 */}
+      {/* Display posts */}
       <div>
         {posts.map((post) => (
           <div key={post.id} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
             <h3>{post.title}</h3>
             <p>{post.content}</p>
-            <small>Posted by {post.author} on {post.timestamp}</small>
+            <small>
+              Posted by {post.author} on{' '}
+              {post.timestamp?.seconds
+                ? new Date(post.timestamp.seconds * 1000).toLocaleString()
+                : '...'}
+            </small>
 
-            {/* 显示评论 */}
+            {/* Comments */}
             <div style={{ marginTop: '10px' }}>
               <h4>Comments:</h4>
-              {comments[post.id]?.map((comment) => (
+              {(comments[post.id] || []).map((comment) => (
                 <div key={comment.id} style={{ marginLeft: '20px', marginBottom: '10px' }}>
                   <p>{comment.content}</p>
-                  <small>Commented by {comment.author} on {comment.timestamp}</small>
+                  <small>
+                    Commented by {comment.author} on{' '}
+                    {comment.timestamp?.seconds
+                      ? new Date(comment.timestamp.seconds * 1000).toLocaleString()
+                      : '...'}
+                  </small>
                 </div>
               ))}
             </div>
 
-            {/* 回复表单 */}
+            {/* Comment input for each post */}
             <div style={{ marginTop: '10px' }}>
               <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+                value={commentInputMap[post.id] || ''}
+                onChange={(e) =>
+                  setCommentInputMap((prev) => ({
+                    ...prev,
+                    [post.id]: e.target.value,
+                  }))
+                }
                 placeholder="Write a comment"
               />
               <button onClick={() => handleCreateComment(post.id)}>Reply</button>
