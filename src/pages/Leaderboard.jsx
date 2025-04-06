@@ -1,5 +1,6 @@
 // src/pages/Leaderboard.jsx
-import React from 'react';
+//Nevin Shiju
+import React, { useState } from 'react';
 
 // initial data
 const initialData = [
