@@ -9,10 +9,6 @@ const initialData = [
   { name: 'John Doe', points: 4600, congratulations: 2, hasCongratulated: false, friendRequestSent: false },
   { name: 'John Doe', points: 4400, congratulations: 2, hasCongratulated: false, friendRequestSent: false },
   { name: 'John Doe', points: 4200, congratulations: 2, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 4000, congratulations: 1, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 3800, congratulations: 1, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 3600, congratulations: 0, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 3400, congratulations: 0, hasCongratulated: false, friendRequestSent: false },
 ];
 
 const Leaderboard = () => {
