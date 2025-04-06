@@ -40,7 +40,7 @@ const Leaderboard = () => {
   };
 
   // add friend button
-  const addFriend = (index) => {
+  const handleAddFriend = (index) => {
     const newLeaderboard = leaderboard.map((user, idx) => {
       if (idx === index) {
         // check the current friend request status
@@ -157,7 +157,7 @@ const Leaderboard = () => {
 
                 {/* Add Friend Button */}
                 <button
-                  onClick={() => addFriend(index)}
+                  onClick={() => handleAddFriend(index)}
                   style={{
                     backgroundColor: user.friendRequestSent ? '#a2d5f2' : 'white',
                     border: '1px solid #ccc',
