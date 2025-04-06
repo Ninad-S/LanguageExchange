@@ -7,6 +7,7 @@ import LanguageQuiz from "./pages/LanguageQuiz";
 import DiscussionBoard from "./pages/DiscussionBoard";
 import Leaderboard from "./pages/Leaderboard";
 import GoPremium from "./pages/GoPremium";
+import SavedWords from "./pages/SavedWords";
 import ProfileSetting from "./pages/ProfileSetting";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
@@ -22,6 +23,7 @@ const App = () => {
         <Route path="/discussion-board" element={<DiscussionBoard />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/go-premium" element={<GoPremium />} />
+        <Route path="/saved-words" element={<SavedWords />} />
         <Route path="/profile-setting" element={<ProfileSetting />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
