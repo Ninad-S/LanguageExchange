@@ -1,0 +1,48 @@
+.find-partner-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: left;
+}
+
+.partner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.partner-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.partner-info {
+    margin-bottom: 20px;
+}
+
+    .partner-info h2 {
+        margin: 0 0 10px;
+    }
+
+    .partner-info p {
+        margin: 5px 0;
+    }
+
+.chat-request-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    .chat-request-button:hover {
+        background-color: #0056b3;
+    }
