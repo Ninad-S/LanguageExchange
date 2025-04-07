@@ -1,12 +1,27 @@
-// src/pages/Login.jsx
-import React from 'react';
-
+// src/pages/Login.js
+//Ninad Sudarsanam
+import React,{useState} from 'react';
+//code to connect to firebase
+import { auth } from './firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 const Login = () => {
+  //handle login
+  const[email,setEmail] = useState('')
+  const[password,setPassword] = useState('')
+  const handleSubmit = async (e)=>{
+      e.preventDefault()
+      try{
+        signInWithEmailAndPassword(auth,email,password)
+        console.log("Sucessful")
+      }catch(err){
+        console.log(err)
+      }
+    }
   return (
     <div>
       <h1>Login</h1>
       <p>Welcome back! Please log in to continue.</p>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div>
           <label>Email:</label>
           <input type="email" placeholder="Enter your email" />
