@@ -1,13 +1,144 @@
 // src/pages/LanguageQuiz.jsx
-import React from 'react';
+//Language Quiz implementation by Maggie Buvanendiran
+import React, { useEffect, useState } from 'react';
+import {
+  collection,
+  onSnapshot,
+  query,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { db } from '../firebase';
 
+//This holds the primary working code where the language quiz will show up on the front end.
 const LanguageQuiz = () => {
+  //set the counter for the variable that keeps track of the current question aand sets it to the default number of 0
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  //assigns the variable for the selected answer and sets the state of the ariables as blank
+  const [selectedAnswer, setSelectedAnswer] = useState('')
+  //assigns variables for the results, including the score, correct and incorrect answers set to the default count of 0
+  const [result, setResult] = useState({
+    //finalScore: 0,
+    //correctAnswers: 0,
+    //incorrectAnswers: 0,
+  })
+  const [showFinalResult, setShowFinalResult] = useState(false)
+  const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null)
+
+  //uses the getQuestions function to receive questions from the database to be used in the quiz
+  //assigns a question in random order into the quiz along with the answers.
+  const getQuestions = async () => {
+    //imports all questions from the database
+
+    //assigns them to an array to be received  and then assigned to a set number of quizzes 
+
+  }
+
+  //function that receives the answer key from the database
+  const getAnswers = async () => {
+    //imports answers from the database
+
+    //maps each question with it's respective answers to generate the multiple choice answers to 
+
+  }
+
+  //function that lets user move on to the next question
+  const onClickNextButton = () => {
+    //move to the next question
+
+    //record answer in records
+
+    //show a new question and answers
+    
+  }
+
+  //function that validates if the user's input is correct
+  const checkAnswer = () => {
+    //compare user picked answer and actual answer
+
+    //if answer is correct, count question correct, else count it incorrect
+
+  }
+
+  //function that will show the total number of questions on the quiz.
+  const showTotalQuestions = () => {
+    //ask user how many questions
+
+    //give user the option of 3, 5 or 7 questions
+
+    //return the number of questions to use for the quiz
+
+  }
+
+  //function to calculate final score
+  const calcFinalScore = () => {
+    //get final score
+
+    //divide by total number of questions
+
+    //multiply by 100 to get final percentage
+
+    //gather all  questions and assign them a  color
+
+    //if correct, assign them green
+
+    //else, assign them red
+  }
+
+  //function to store the results of this quiz in the search database
+  const getQuizResults = () => {
+    //get final score, correct questions and incorrect questions along with their answers
+    //import it to the database under the 
+  }
+
+  //function to compile all the quizzes taken into the database 
+  const compileQuizzes = () => {
+    //get all dates and IDs of quizzes taken
+
+    //import to the database
+
+    //create a list of all the imports
+  } 
+
+  //function to search the quiz results 
+  const searchResults = () => {
+    //get user input for the date
+
+    //get the user input for the quiz number
+
+    //filter the list with the user inputs
+
+    //return the results filtered from the list
+  }
+
+  //shows what will be output on the front end of the website
   return (
-    <div>
-      <h1>Language Quiz</h1>
-      <p>Test your language skills with our quizzes.</p>
+    //Holds the container for the quiz to be shown in, it shows the Question, the answers and the total number of quiz questions with the back and forth button
+    //There are placeholders currently set for the question, the answer choices and the answer  along with the max number of questions to be received from the database  
+    //There is also the Quiz results shown after the quiz is taken to show the resulting score an which questions are correct and incorrect
+    <div className='quiz'>
+      {!showFinalResult ? (
+        <div>
+          <h1>Language Quiz</h1>
+          <div>
+            <h2> '(Question Placeholder)' </h2>
+            <ul>
+              <button>a1</button>
+              <button>a2</button>
+              <button>a3</button>
+              <button>a4</button>
+            </ul>
+            <button> Next </button>
+          </div>
+          <div className='index'> 1 of n</div>
+        </div>
+      ) : (
+        <div className='results'>
+          <h2>Quiz Results</h2>
+          <p> Your score: n points</p>
+        </div>
+      )}
     </div>
-  );
+  )
 };
 
 export default LanguageQuiz;
