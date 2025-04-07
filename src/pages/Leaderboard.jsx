@@ -1,5 +1,11 @@
 // src/pages/Leaderboard.jsx
 //Nevin Shiju
+/*
+I have implemented a base layout of the leaderboard page for our app.
+The leaderboard is displayed with data I inputted for now.
+Both the "Congratulate!" and "Add Friend" buttons work as seen in my test cases.
+*/
+
 import React, { useState } from 'react';
 
 // initial data
