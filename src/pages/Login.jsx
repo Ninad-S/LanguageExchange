@@ -2,7 +2,7 @@
 //Ninad Sudarsanam
 import React,{useState} from 'react';
 //code to connect to firebase
-import { auth } from './firebase';
+import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 const Login = () => {
   //handle login
