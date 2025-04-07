@@ -26,6 +26,22 @@ const LanguageQuiz = () => {
 
   //uses the getQuestions function to receive questions from the database to be used in the quiz
   //assigns a question in random order into the quiz along with the answers.
+  const quiz = {
+    questions: [
+      {
+        question: 'pick 2?',
+        answers: ['1', '2', '3', '4'],
+        correctAnswer: '2',
+        questionType: 'MCQ'
+      },
+      {
+        question: 'say hello!',
+        answers: ['hello'],
+        correctAnswer: 'hello',
+        questionType: 'short answer'
+      }
+    ],
+  }
   const getQuestions = async () => {
     //imports all questions from the database
 
@@ -34,6 +50,7 @@ const LanguageQuiz = () => {
   }
 
   //function that receives the answer key from the database
+  const { question, answers, answerKey, questionType } = quiz.questions[currentQuestion]
   const getAnswers = async () => {
     //imports answers from the database
 
@@ -42,9 +59,9 @@ const LanguageQuiz = () => {
   }
 
   //function that lets user move on to the next question
-  const onClickNextButton = () => {
+  const nextButton = () => {
     //move to the next question
-
+    setCurrentQuestion((prev) => prev + 1)
     //record answer in records
 
     //show a new question and answers
@@ -54,7 +71,11 @@ const LanguageQuiz = () => {
   //function that validates if the user's input is correct
   const checkAnswer = () => {
     //compare user picked answer and actual answer
-
+    if(answer === answerKey){
+      setSelectedAnswer(true)
+    } else {
+      setSelectedAnswer(false)
+    }
     //if answer is correct, count question correct, else count it incorrect
 
   }
@@ -87,6 +108,9 @@ const LanguageQuiz = () => {
   //function to store the results of this quiz in the search database
   const getQuizResults = () => {
     //get final score, correct questions and incorrect questions along with their answers
+    if(currentQuestion + 1 === 2){
+      
+    }
     //import it to the database under the 
   }
 
@@ -116,29 +140,28 @@ const LanguageQuiz = () => {
     //There are placeholders currently set for the question, the answer choices and the answer  along with the max number of questions to be received from the database  
     //There is also the Quiz results shown after the quiz is taken to show the resulting score an which questions are correct and incorrect
     <div className='quiz'>
-      {!showFinalResult ? (
+    {!showFinalResult ? (
+      <div>
+        <h1>Language Quiz</h1>
         <div>
-          <h1>Language Quiz</h1>
-          <div>
-            <h2> '(Question Placeholder)' </h2>
-            <ul>
-              <button>a1</button>
-              <button>a2</button>
-              <button>a3</button>
-              <button>a4</button>
-            </ul>
-            <button> Next </button>
-          </div>
-          <div className='index'> 1 of n</div>
+          <h2> {question} </h2>
+          <ul>
+            {answers.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+          <button onClick={nextButton}> Next </button>
         </div>
-      ) : (
-        <div className='results'>
-          <h2>Quiz Results</h2>
-          <p> Your score: n points</p>
-        </div>
-      )}
-    </div>
-  )
+        <div className='index'> {currentQuestion + 1} of 2</div>
+      </div>
+    ) : (
+      <div className='results'>
+        <h2>Quiz Results</h2>
+        <p> Your score: n points</p>
+      </div>
+    )}
+  </div>
+)
 };
 
 export default LanguageQuiz;
