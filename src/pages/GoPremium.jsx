@@ -11,7 +11,7 @@ const Pricing = () => {
     <div className="pricing-container">
       
       <div className="pricing-plans">
-        <div className="plan-card">
+        <div className="plan-card1">
           <h2>Free</h2>
           <p className="price">$0 / mo</p>
           <ul className="features">
@@ -25,7 +25,7 @@ const Pricing = () => {
           </Link>
         </div>
 
-        <div className="plan-card">
+        <div className="plan-card2">
           <h2>Basic</h2>
           <p className="price">$5 / mo</p>
           <ul className="features">
@@ -39,7 +39,7 @@ const Pricing = () => {
           </Link>
         </div>
 
-        <div className="plan-card">
+        <div className="plan-card3">
           <h2>Premium</h2>
           <p className="price">$10 / mo</p>
           <ul className="features">

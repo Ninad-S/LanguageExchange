@@ -1,5 +1,5 @@
 import React from 'react';
-import '/Users/nasirjohnson/Projects/VSCode/LanguageExchange/src/pages/Subscription.css';
+import './Subscription.css';
 
 
 

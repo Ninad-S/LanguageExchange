@@ -11,7 +11,7 @@ import SavedWords from "./pages/SavedWords";
 import ProfileSetting from "./pages/ProfileSetting";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import CheckoutPage from "/Users/nasirjohnson/Projects/VSCode/LanguageExchange/src/pages/CheckoutPage.jsx"
+import CheckoutPage from "./pages/CheckoutPage";
 
 const App = () => {
   return (
