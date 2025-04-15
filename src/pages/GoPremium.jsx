@@ -1,8 +1,11 @@
 // Nasir Johnson
 import React from 'react';
 import '../Pricing.css';
+import { Link } from "react-router-dom";
 
 const Pricing = () => {
+ 
+
   return (
 
     <div className="pricing-container">
@@ -17,7 +20,9 @@ const Pricing = () => {
             <li>Ads included</li>
             <li>lefffr</li>
           </ul>
-          <button className="plan-button">Button</button>
+          <Link to="/checkout">
+            <button className="plan-button">Button</button>
+          </Link>
         </div>
 
         <div className="plan-card">
@@ -29,7 +34,9 @@ const Pricing = () => {
             <li>Ads included</li>
             <li>lefffr</li>
           </ul>
-          <button className="plan-button">Button</button>
+          <Link to="/checkout">
+            <button className="plan-button">Button</button>
+          </Link>
         </div>
 
         <div className="plan-card">
@@ -41,7 +48,9 @@ const Pricing = () => {
             <li>Ads included</li>
             <li>lefffr</li>
           </ul>
-          <button className="plan-button">Button</button>
+          <Link to="/checkout">
+            <button className="plan-button">Button</button>
+          </Link>
         </div>
       </div>
 
