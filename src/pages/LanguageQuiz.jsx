@@ -2,10 +2,13 @@
 //Language Quiz implementation by Maggie Buvanendiran
 import React, { useEffect, useState } from 'react';
 import {
+  getFirestore,
   collection,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
+  QuerySnapshot,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -17,45 +20,68 @@ const LanguageQuiz = () => {
   const [selectedAnswer, setSelectedAnswer] = useState('')
   //assigns variables for the results, including the score, correct and incorrect answers set to the default count of 0
   const [result, setResult] = useState({
-    //finalScore: 0,
-    //correctAnswers: 0,
-    //incorrectAnswers: 0,
+    finalScore: 0,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
   })
   const [showFinalResult, setShowFinalResult] = useState(false)
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null)
+  const [color, setColor] = useState("grey");
 
   //uses the getQuestions function to receive questions from the database to be used in the quiz
   //assigns a question in random order into the quiz along with the answers.
-  const quiz = {
+  /*const quiz = {
     questions: [
       {
         question: 'pick 2?',
         answers: ['1', '2', '3', '4'],
-        correctAnswer: '2',
+        answerKey: '2',
         questionType: 'MCQ'
       },
       {
         question: 'say hello!',
         answers: ['hello'],
-        correctAnswer: 'hello',
+        answerKey: 'hello',
         questionType: 'short answer'
       }
     ],
-  }
+  }*/
+  
+  const [questions, setQuestions] = useState([]);
   const getQuestions = async () => {
     //imports all questions from the database
-
+    await getDocs(collection(db, "question"))
+    .then((QuerySnapshot)=>{
+      const newData = querySnapshot.getDocs
+      .map((doc) => ({...doc.data(), id:doc.id }));
+      setQuestions(newData);
+      console.log(questions, newData);
+    })
     //assigns them to an array to be received  and then assigned to a set number of quizzes 
 
   }
 
+  useEffect(()=>{
+    getQuestions();
+  }, [])
+
   //function that receives the answer key from the database
-  const { question, answers, answerKey, questionType } = quiz.questions[currentQuestion]
+  //const { question, answers, answerKey, questionType } = questions[currentQuestion];
+  const [answerKey, setAnswerKey] = useState([]);
   const getAnswers = async () => {
     //imports answers from the database
-
+    await getDocs(collection(db, "answerKey"))
+    .then((QuerySnapshot)=>{
+      const newData = querySnapshot.getDocs
+      .map((doc) => ({...doc.data(), id:doc.id }));
+      setAnswerKey(newData);
+      console.log(answerKey, newData);
+    })
     //maps each question with it's respective answers to generate the multiple choice answers to 
 
+    useEffect(()=>{
+      setAnswerKey();
+    }, [])
   }
 
   //function that lets user move on to the next question
@@ -145,11 +171,29 @@ const LanguageQuiz = () => {
         <h1>Language Quiz</h1>
         <div>
           <h2> {question} </h2>
+          {questionType === 'MCQ' ? (
           <ul>
-            {answers.map((item) => (
-              <li>{item}</li>
+            {answers.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  color === "grey"
+                  setSelectedAnswer(item)
+                  setSelectedAnswerIndex(index)
+                }}
+              >
+                {item}
+              </button>
             ))}
           </ul>
+          ) : (
+            <input
+              type="text"
+              value={selectedAnswer}
+              onChange={(e) => setSelectedAnswer(e.target.value)}
+              placeholder="Type your answer"
+            />
+          )}
           <button onClick={nextButton}> Next </button>
         </div>
         <div className='index'> {currentQuestion + 1} of 2</div>
@@ -157,7 +201,7 @@ const LanguageQuiz = () => {
     ) : (
       <div className='results'>
         <h2>Quiz Results</h2>
-        <p> Your score: n points</p>
+        <p> Your score: {finalScore} points</p>
       </div>
     )}
   </div>
