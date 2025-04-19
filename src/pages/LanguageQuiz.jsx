@@ -2,11 +2,9 @@
 // Language Quiz implementation by Maggie Buvanendiran
 
 import React, { useEffect, useState } from 'react';
-import {
-  collection,
-  getDocs,
-} from 'firebase/firestore';
-import { db } from '../firebase';
+import { getDatabase, ref, onValue } from "firebase/database";
+import { app, db } from '../firebase';
+import { collection } from 'firebase/firestore';
 
 // This holds the primary working code where the language quiz will show up on the front end.
 const LanguageQuiz = () => {
@@ -31,45 +29,26 @@ const LanguageQuiz = () => {
   // variable to show the final result for the search
   const [showFinalResult, setShowFinalResult] = useState(false);
 
-  // uses the getQuestions function to receive questions from the database to be used in the quiz
+  // uses the function to receive questions and answers from the database to be used in the quiz
   // assigns a question in random order into the quiz along with the answers.
-  const getQuestions = async () => {
-
-  };
-
   useEffect(() => {
-    getQuestions();
+    const database = getDatabase(app); // connect to your Firebase Realtime DB
+    const questionsRef = ref(database, 'questions'); // reference to "questions" node
+  
+    // fetch and listen to changes in the "questions" node
+    onValue(questionsRef, (snapshot) => {
+      // get the data object
+      const data = snapshot.val(); 
+      // check if there's data in the database
+      if (data) {
+        // convert object to array
+        // shuffle the questions so they will be randomly given
+        const shuffle = Object.values(data).sort(() => Math.random() - 0.2);
+        // save to state
+        setQuestions(shuffle); 
+      }
+    });
   }, []);
-
-  // maps each question with its respective answers to generate the multiple choice answers to
-  const getAnswers = async () => {
-
-  };
-
-  useEffect(() => {
-    getAnswers();
-  }, []);
-
-  // function that validates if the user's input is correct
-  const checkAnswer = () => {
-    const current = questions[currentQuestion];
-    const correctAnswer = answerMap[currentQ?.id]?.toLowerCase().trim();
-    const userAnswer = selectedAnswer.toLowerCase().trim();
-
-    // compare user picked answer and actual answer
-    if (userAnswer === correctAnswer) {
-      setResult((prev) => ({
-        ...prev,
-        finalScore: prev.finalScore + 1,
-        correctAnswers: prev.correctAnswers + 1,
-      }));
-    } else {
-      setResult((prev) => ({
-        ...prev,
-        incorrectAnswers: prev.incorrectAnswers + 1,
-      }));
-    }
-  };
 
   // function that lets user move on to the next question
   const nextButton = () => {
@@ -87,15 +66,45 @@ const LanguageQuiz = () => {
       setShowFinalResult(true); // end of quiz
     }
   };
-
-  // function that will show the total number of questions on the quiz.
-  const showTotalQuestions = () => {
-    // ask user how many questions
-
-    // give user the option of 3, 5 or 7 questions
-
-    // return the number of questions to use for the quiz
+  
+  // function that validates if the user's input is correct
+  const checkAnswer = () => {
+    const current = questions[currentQuestion];
+    const correctAnswer = current?.answerKey?.toLowerCase().trim();
+    const userAnswer = selectedAnswer.toLowerCase().trim();
+  
+    //compare user picked answer with correct answer
+    if (userAnswer === correctAnswer) {
+      setResult((prev) => ({
+        ...prev,
+        finalScore: prev.finalScore + 1,
+        correctAnswers: prev.correctAnswers + 1,
+      }));
+    } else {
+      setResult((prev) => ({
+        ...prev,
+        incorrectAnswers: prev.incorrectAnswers + 1,
+      }));
+    }
   };
+
+  //function that resets quiz 
+  const resetQuiz = () => {
+    //sets final result page to not be shown
+    setShowFinalResult(false); 
+    //resets question counter       
+    setCurrentQuestion(0);     
+    //resets results 
+    setResult({                        
+      finalScore: 0,
+      correctAnswers: 0,
+      incorrectAnswers: 0,
+    });
+    //resets selected answers to empty          
+    setSelectedAnswer('');   
+    //resrts answered question counter to 0        
+    setSelectedAnswerIndex(null); 
+  }
 
   // function to calculate final score
   const calcFinalScore = () => {
@@ -163,12 +172,6 @@ const LanguageQuiz = () => {
                 {answers.map((item, index) => (
                   <button
                     key={index}
-                    style={{
-                      backgroundColor:
-                        selectedAnswerIndex === index ? '#cde' : '#eee',
-                      margin: '5px',
-                      padding: '10px',
-                    }}
                     onClick={() => {
                       setSelectedAnswer(item);
                       setSelectedAnswerIndex(index);
@@ -186,7 +189,10 @@ const LanguageQuiz = () => {
                 placeholder="Type your answer"
               />
             )}
-            <button onClick={nextButton} style={{ marginTop: '15px' }}>
+            <button 
+            onClick={nextButton} 
+            style={{ marginTop: '20px' }}
+            >
               Next
             </button>
           </div>
@@ -200,7 +206,12 @@ const LanguageQuiz = () => {
           <p>Your score: {result.finalScore} / {questions.length}</p>
           <p>Correct Answers: {result.correctAnswers}</p>
           <p>Incorrect Answers: {result.incorrectAnswers}</p>
-        </div>
+          <button
+          onClick={resetQuiz}
+          >
+            Retry
+          </button>
+        </div>   
       )}
     </div>
   );
