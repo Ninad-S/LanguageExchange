@@ -43,7 +43,7 @@ const LanguageQuiz = () => {
       if (data) {
         // convert object to array
         // shuffle the questions so they will be randomly given
-        const shuffle = Object.values(data).sort(() => Math.random() - 0.2);
+        const shuffle = Object.values(data).sort(() => Math.random() - 0.1);
         // save to state
         setQuestions(shuffle); 
       }
