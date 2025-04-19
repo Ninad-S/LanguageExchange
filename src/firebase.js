@@ -7,7 +7,7 @@ import { getDatabase } from "firebase/database";
 
 // ✅ Initialize app first
 const firebaseConfig = {
-  apiKey: "AIzaSyC3Kkb7ZD6RuOneXJ5TlYBR0vQ65PQhcco",
+  apiKey: "",
   authDomain: "languagemate-18f43.firebaseapp.com",
   databaseURL: "https://languagemate-18f43-default-rtdb.firebaseio.com",
   projectId: "languagemate-18f43",
