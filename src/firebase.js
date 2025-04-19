@@ -1,9 +1,10 @@
 // src/firebase.js
+// staging
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
-// Firebase config using Vite environment variables
 const firebaseConfig = {
   apiKey: "AIzaSyC3Kkb7ZD6RuOneXJ5TlYBR0vQ65PQhcco",
   authDomain: "languagemate-18f43.firebaseapp.com",
@@ -15,9 +16,9 @@ const firebaseConfig = {
   measurementId: "G-S9SKJVSRXZ"
 };
 
-// Initialize Firebase services
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const rtdb = getDatabase(app); 
 
-export { app, auth, db };
+export { app, auth, db, rtdb };

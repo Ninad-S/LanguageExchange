@@ -1,74 +1,76 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { rtdb } from '../firebase';
+import { ref, push, onValue } from 'firebase/database';
 
 const Chat = () => {
-  // initial messages with sender, language, and translation
-  const [messages, setMessages] = useState([
-    {
-      text: 'Hello, how is it going?',
-      translation: 'Hola, ¿cómo va todo?',
-      lang: 'es',
-      from: 'me'
-    },
-    {
-      text: 'Muy bien, ¿y tú?',
-      translation: 'Quite good, how about you?',
-      lang: 'en',
-      from: 'them'
-    },
-    {
-      text: 'Pretty good as well, did you remember to do your practice?',
-      translation: 'Bastante bueno también, ¿te acordaste de hacer tu práctica?',
-      lang: 'es',
-      from: 'me'
-    },
-    {
-      text: 'Lo he estado posponiendo, ¡pero esta semana seguro!',
-      translation: "I've been putting it off, but this week for sure!",
-      lang: 'en',
-      from: 'them'
-    },
-    {
-      text: 'Well that’s good to hear.',
-      translation: 'Bueno, eso es bueno escuchar.',
-      lang: 'es',
-      from: 'me'
-    },
-  ]);
-
-  // input field value
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-
-  // ref to scroll to latest message
+  const [targetLang, setTargetLang] = useState('es');
   const chatEndRef = useRef(null);
+  const chatId = 'user1_user2';
 
-  // add a new message from 'me'
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (input.trim()) {
-      setMessages([...messages, {
-        text: input,
-        translation: '(Translation placeholder)',
-        lang: 'en',
-        from: 'me'
-      }]);
-      setInput('');
+      const originalText = input;
+      const messageRef = ref(rtdb, `messages/${chatId}`);
+
+      try {
+        const newMessage = {
+          text: originalText,
+          translation: '(Translation failed)', // ✅ fallback
+          lang: targetLang,
+          from: 'me',
+          timestamp: Date.now()
+        };
+
+        // Commented out actual translation for now
+        /*
+        const response = await axios.post('http://localhost:5001/translate', {
+          q: originalText,
+          source: 'en',
+          target: targetLang,
+          format: 'text'
+        });
+
+        newMessage.translation = response.data.translatedText;
+        */
+
+        push(messageRef, newMessage);
+        setInput('');
+      } catch (err) {
+        console.error("Translation error:", err);
+      }
     }
   };
 
-  // scroll to bottom when messages update
+  useEffect(() => {
+    const chatRef = ref(rtdb, `messages/${chatId}`);
+
+    const unsubscribe = onValue(chatRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const loaded = Object.values(data).sort((a, b) => a.timestamp - b.timestamp);
+        setMessages(loaded);
+      } else {
+        setMessages([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   return (
     <div style={styles.container}>
-      {/* top bar */}
       <div style={styles.header}>
         <button style={styles.backButton}>&larr;</button>
         <div style={styles.headerText}>John Doe</div>
         <div style={styles.avatar}>👤</div>
       </div>
 
-      {/* message area */}
       <div style={styles.chatBody}>
         {messages.map((msg, index) => (
           <div
@@ -80,16 +82,26 @@ const Chat = () => {
           >
             <div>{msg.text}</div>
             <small style={styles.translation}>
-              {msg.translation} ({msg.lang === 'en' ? 'English' : 'Español'})
+              {msg.translation} ({languageLabel(msg.lang)})
             </small>
           </div>
         ))}
-        {/* scroll anchor */}
         <div ref={chatEndRef} />
       </div>
 
-      {/* input area */}
       <div style={styles.inputContainer}>
+        <select
+          value={targetLang}
+          onChange={(e) => setTargetLang(e.target.value)}
+          style={styles.dropdown}
+        >
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="zh">Chinese</option>
+          <option value="ja">Japanese</option>
+          <option value="en">English</option>
+        </select>
         <input
           type="text"
           placeholder="Send to John"
@@ -97,16 +109,27 @@ const Chat = () => {
           onChange={(e) => setInput(e.target.value)}
           style={styles.input}
         />
-        <button onClick={sendMessage} style={styles.sendButton}>📨</button>
+        <button onClick={sendMessage} style={styles.sendButton}>➡️</button>
       </div>
     </div>
   );
 };
 
-// inline styles for layout and appearance
+const languageLabel = (langCode) => {
+  const mapping = {
+    en: 'English',
+    es: 'Spanish',
+    fr: 'French',
+    de: 'German',
+    zh: 'Chinese',
+    ja: 'Japanese'
+  };
+  return mapping[langCode] || langCode;
+};
+
 const styles = {
   container: {
-    maxWidth: '700px',
+    maxWidth: '100%',
     width: '100%',
     margin: '0 auto',
     backgroundColor: '#f4f4f8',
@@ -181,6 +204,12 @@ const styles = {
     border: '1px solid #ccc',
     marginRight: '10px',
     outline: 'none',
+  },
+  dropdown: {
+    marginRight: '10px',
+    borderRadius: '20px',
+    padding: '10px',
+    border: '1px solid #ccc',
   },
   sendButton: {
     fontSize: '20px',

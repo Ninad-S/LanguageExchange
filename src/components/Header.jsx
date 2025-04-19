@@ -1,12 +1,20 @@
 // src/components/Header.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
   const [showDropdown, setShowDropdown] = useState(null);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleDropdown = (index) => {
     setShowDropdown(showDropdown === index ? null : index);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
   };
 
   return (
@@ -76,10 +84,21 @@ const Header = () => {
             )}
           </li>
 
-          {/* Login / Sign Up */}
+          {/* Login / Logout */}
           <li style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-            <Link to="/login">Login</Link>
-            <Link to="/signup">Sign Up</Link>
+            {user ? (
+              <>
+                <span style={{ alignSelf: 'center' }}>👤 {user.email}</span>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'blue' }}>
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">Login</Link>
+                <Link to="/signup">Sign Up</Link>
+              </>
+            )}
           </li>
         </ul>
       </nav>
