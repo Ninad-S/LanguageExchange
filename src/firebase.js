@@ -2,8 +2,10 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
-// Firebase config using Vite environment variables
+
+// ✅ Initialize app first
 const firebaseConfig = {
   apiKey: "AIzaSyC3Kkb7ZD6RuOneXJ5TlYBR0vQ65PQhcco",
   authDomain: "languagemate-18f43.firebaseapp.com",
@@ -15,9 +17,9 @@ const firebaseConfig = {
   measurementId: "G-S9SKJVSRXZ"
 };
 
-// Initialize Firebase services
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); // ✅ now app exists
 const auth = getAuth(app);
 const db = getFirestore(app);
+const rtdb = getDatabase(app); // ✅ now this is safe
 
-export { auth, db };
+export { auth, db, rtdb };
