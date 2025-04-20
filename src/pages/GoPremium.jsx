@@ -1,6 +1,6 @@
 // Nasir Johnson
 import React from 'react';
-import '/Users/nasirjohnson/Projects/VSCode/LanguageExchange/src/Pricing.css';
+import '../Pricing.css';
 
 const Pricing = () => {
   return (
