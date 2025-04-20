@@ -3,8 +3,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
-import { app, db } from '../firebase';
-import { collection } from 'firebase/firestore';
+import { doc, updateDoc, getDoc, collection } from 'firebase/firestore';
+import { app, db, auth } from '../firebase';
 
 
 // This holds the primary working code where the language quiz will show up on the front end.
@@ -208,6 +208,43 @@ const LanguageQuiz = () => {
   const question = current?.question;
   const answers = current?.answers || [];
   const questionType = current?.questionType;
+
+  //-------------Nevin: Leaderboard-------------------
+  const updateLeaderboard = async () => {
+    const currentUID = auth.currentUser?.uid;
+    if (!currentUID) return;
+  
+    const userRef = doc(db, 'Leaderboard', currentUID);
+    const userSnap = await getDoc(userRef);
+  
+    if (!userSnap.exists()) return;
+  
+    const userData = userSnap.data();
+  
+    const newCorrectAnswers = (userData.correctAnswers || 0) + result.correctAnswers;
+    const newQuizzesCompleted = (userData.quizzesCompleted || 0) + 1;
+    const newPoints = (userData.points || 0) + 25 + (result.correctAnswers * 10);
+  
+    try {
+      await updateDoc(userRef, {
+        correctAnswers: newCorrectAnswers,
+        quizzesCompleted: newQuizzesCompleted,
+        points: newPoints,
+      });
+      console.log("🔥 Leaderboard updated successfully!");
+    } catch (error) {
+      console.error("🔥 Failed to update leaderboard:", error);
+    }
+  };
+
+  // Trigger leaderboard update once when results are shown
+  useEffect(() => {
+    if (showFinalResult) {
+      updateLeaderboard();
+    }
+  }, [showFinalResult]);
+  //-------------Nevin: Leaderboard-------------------
+
 
   // shows what will be output on the front end of the website
   // holds the container for the quiz to be shown in. It shows the Question, the answers, and the total number of quiz questions with the next button
