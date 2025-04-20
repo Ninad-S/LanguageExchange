@@ -4,9 +4,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
+import { getStripePayments } from '@stripe/firestore-stripe-payments';
 
-
-// ✅ Initialize app first
 const firebaseConfig = {
   apiKey: "AIzaSyC3Kkb7ZD6RuOneXJ5TlYBR0vQ65PQhcco",
   authDomain: "languagemate-18f43.firebaseapp.com",
@@ -18,9 +17,13 @@ const firebaseConfig = {
   measurementId: "G-S9SKJVSRXZ"
 };
 
-const app = initializeApp(firebaseConfig); // ✅ now app exists
+const app = initializeApp(firebaseConfig); 
 const auth = getAuth(app);
 const db = getFirestore(app);
-const rtdb = getDatabase(app); // ✅ now this is safe
+const rtdb = getDatabase(app); 
+const payments = getStripePayments(app, {
+  productsCollection: "products",
+  customersCollection: "customers"
+});
 
-export { auth, db, rtdb };
+export { app, auth, db, rtdb, payments};
