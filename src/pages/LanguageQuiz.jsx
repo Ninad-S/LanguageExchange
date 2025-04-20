@@ -30,6 +30,40 @@ const LanguageQuiz = () => {
   // variable to show the final result for the search
   const [showFinalResult, setShowFinalResult] = useState(false);
 
+  // variable to take account of new set of questions
+  const [newQuestions, setNewQuestions] = useState([]);
+
+  //import words from saved word bank to be used in quiz
+  useEffect(() => {
+    const db = getDatabase(app); 
+    const wordsRef = ref(db, 'savedUsers/testuser'); 
+
+    onValue(wordsRef, (snapshot) => {
+      // get the data object
+      const data = snapshot.val(); 
+      // check if there's data in the database
+      if (data) {
+        // convert word objects to array
+        const words = Object.values(data);
+
+        //convert the word objects into question
+        const wordToQuestion = words.map((item) => ({
+          question: item.word,
+          answerKey: item.translation,
+          questionType: "Short Answer",
+          qLang: item.language,
+        }));
+        // save to state
+        setNewQuestions(wordToQuestion);
+      }
+    });
+  }, []);
+
+  //combines the saved word questions to the quiz question list
+  useEffect(() => {
+    setQuestions((prev) => [...prev, ...newQuestions].sort(() => Math.random() - 0.5));
+  }, [newQuestions]);
+
   // uses the function to receive questions and answers from the database to be used in the quiz
   // assigns a question in random order into the quiz along with the answers.
   useEffect(() => {
@@ -164,6 +198,7 @@ const LanguageQuiz = () => {
   const [searchResults, setSearchResult] = useState([]);
   //filtered query results
   const [searchQuery, setSearchQuery] = useState([]);
+  
   // function to store the results of this quiz in the search database
   // get final score, correct questions and incorrect questions along with their answers
   // import it to the database under the collection
