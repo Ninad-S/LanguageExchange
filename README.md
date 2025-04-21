@@ -33,6 +33,8 @@ Team #3
 Users will get the opportunity to learn a new language through a web application by connecting with native speakers of their desired language and exchanging their native language in return with the user of choice.
 >>>>>>> 895511e53a6b1e142a620b62e0d6a3a0b56badf2
 
+
+
 To run the program localy:
 1. Open code in VS code.
 2. Run the command, "npm run dev" on terminal.
