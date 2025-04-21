@@ -24,7 +24,7 @@ const checkLoginStreak = async (uid) => {
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const yesterdayStr = yesterday.toLocaleDateString('en-CA');
 
   let newStreak = 1;
   let newPoints = data.points + 50;
@@ -40,7 +40,7 @@ const checkLoginStreak = async (uid) => {
     points: newPoints,
   });
 
-  console.log(`🔥 Streak updated! ${newStreak} days, ${newPoints} points`);
+  console.log(` Streak updated! ${newStreak} days, ${newPoints} points`);
 };
 //-------------Nevin: Leaderboard-------------------
 
