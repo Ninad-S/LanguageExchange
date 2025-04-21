@@ -11,6 +11,7 @@ import SavedWords from "./pages/SavedWords";
 import ProfileSetting from "./pages/ProfileSetting";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import CheckoutPage from "./pages/CheckoutPage";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/discussion-board" element={<DiscussionBoard />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="/go-premium" element={<GoPremium />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/saved-words" element={<SavedWords />} />
         <Route path="/profile-setting" element={<ProfileSetting />} />
         <Route path="/login" element={<Login />} />
