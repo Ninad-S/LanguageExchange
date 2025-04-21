@@ -324,7 +324,7 @@ const LanguageQuiz = () => {
               <ul className='text'>
                 {answers.map((item, index) => (
                   <button
-                  className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
+                    className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
                     key={index}
                     onClick={() => {
                       setSelectedAnswer(item);
