@@ -1,6 +1,6 @@
 // Nasir Johnson
 import React, { useEffect, useState } from 'react';
-import '../Pricing.css';
+import './Pricing.css';
 import { useNavigate } from "react-router-dom";
 import { payments } from '../firebase';
 

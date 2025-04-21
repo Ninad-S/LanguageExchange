@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import FindPartner from "./pages/FindPartner";
+import ManageChats from "./pages/ManageChats";
 import Chat from "./pages/Chat";
 import LanguageQuiz from "./pages/LanguageQuiz";
 import DiscussionBoard from "./pages/DiscussionBoard";
@@ -19,6 +20,8 @@ const App = () => {
       <Header />
       <Routes>
         <Route path="/find-partner" element={<FindPartner />} />
+        <Route path="/manage-chats" element={<ManageChats />} />
+        <Route path="/chat/:chatId" element={<Chat />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/language-quiz" element={<LanguageQuiz />} />
         <Route path="/discussion-board" element={<DiscussionBoard />} />

@@ -1,3 +1,4 @@
+import { useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useRef, useEffect } from 'react';
 import { rtdb } from '../firebase';
 import { ref, push, onValue } from 'firebase/database';
@@ -7,7 +8,8 @@ const Chat = () => {
   const [input, setInput] = useState('');
   const [targetLang, setTargetLang] = useState('es');
   const chatEndRef = useRef(null);
-  const chatId = 'user1_user2';
+  const { chatId } = useParams();
+  const navigate = useNavigate();
 
   const sendMessage = async () => {
     if (input.trim()) {
@@ -66,7 +68,9 @@ const Chat = () => {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <button style={styles.backButton}>&larr;</button>
+        <button style={styles.backButton} onClick={() => navigate('/manage-chats')}>
+          &larr;
+        </button>
         <div style={styles.headerText}>John Doe</div>
         <div style={styles.avatar}>👤</div>
       </div>
