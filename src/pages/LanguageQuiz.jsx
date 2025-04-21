@@ -373,7 +373,7 @@ const LanguageQuiz = () => {
               ))}
             </ul>
             <button
-              className="nextButton"
+              className="retryButton"
               onClick={() => {
                 compileQuizzes();
                 resetQuiz();
