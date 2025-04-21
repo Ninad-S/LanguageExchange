@@ -321,10 +321,10 @@ const LanguageQuiz = () => {
           <div>
             <h2 className="question">{question}</h2>
             {questionType === 'MCQ' ? (
-              <ul>
+              <ul className='text'>
                 {answers.map((item, index) => (
                   <button
-                    className="option"
+                  className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
                     key={index}
                     onClick={() => {
                       setSelectedAnswer(item);
