@@ -192,7 +192,7 @@ export default ProfileSetting;
 
 //Use case 1: Manage Account
 //Use case 2: Manage and View Profile
-
+//
 //updatePassword
 //visibilitySetting
 
