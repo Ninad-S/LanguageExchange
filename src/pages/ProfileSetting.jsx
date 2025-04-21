@@ -1,90 +1,139 @@
 // src/pages/ProfileSetting.jsx
 // Rumaisa Bhatti
-// Implements two most important test cases:
-// TC1 (from Manage Account): User deletes account after confirmation
-// TC2 (from Manage/View Profile): User updates bio
+// Implements:
+// TC1: Delete Account
+// TC2: Update Bio
+// TC3: Toggle Profile Visibility
 
 import React, { useEffect, useState } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { deleteUser } from 'firebase/auth';
 
-//This holds the main Profile Settings UI for user
 const ProfileSetting = () => {
-  //VARIABLES & STATE
-  // Stores user bio and user ID
+  // ========== STATE ==========
   const [userBio, setUserBio] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [visibility, setVisibility] = useState(true);
 
-  //LOAD USER DATA ON PAGE LOAD 
+  // ========== LOAD USER DATA (on mount) ==========
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
-      if (!user) return;
+      if (!user) {
+        console.warn('No user is currently logged in');
+        return;
+      }
 
-      //stores user UID
       setCurrentUserId(user.uid);
-
-      //reference to Firestore document
       const userRef = doc(db, 'users', user.uid);
       const userSnapshot = await getDoc(userRef);
 
-      //load bio if user data exist
       if (userSnapshot.exists()) {
         const data = userSnapshot.data();
+        console.log('User data loaded:', data);
         setUserBio(data.bio || '');
+        setVisibility(data.visibility ?? true); // default to public
+      } else {
+        console.warn('User document does not exist in Firestore');
       }
     };
 
-    fetchUserData(); //run on page mount
+    fetchUserData();
   }, []);
 
-  //TC2: Update User Bio 
+  // ========== TC2: Update User Bio ==========
   const updateUserBio = async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      console.warn('User ID not set when trying to update bio');
+      return;
+    }
 
     try {
-      //Update bio in Firestore
       await updateDoc(doc(db, 'users', currentUserId), { bio: userBio });
-
       alert('Your bio was updated!');
     } catch (err) {
       console.error('Bio update failed:', err);
     }
   };
 
-  //T1: Delete Account with Confirmation 
+  // ========== TC3: Toggle Profile Visibility ==========
+  /*
+  const toggleVisibility = async () => {
+    console.log('Toggling visibility from', visibility, 'to', !visibility);
+
+    if (!currentUserId) {
+      console.warn('User ID not set when trying to toggle visibility');
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, 'users', currentUserId), {
+        visibility: !visibility,
+      });
+      setVisibility(!visibility);
+      alert(`Profile visibility set to ${!visibility ? 'Public' : 'Private'}`);
+    } catch (err) {
+      console.error('Error updating visibility:', err);
+    }
+  };
+*/
+
+const toggleVisibility = async () => {
+  if (!currentUserId) {
+    console.warn('User ID not set when trying to toggle visibility');
+    return;
+  }
+
+  const newVisibility = !visibility;
+
+  try {
+    console.log('Updating visibility to:', newVisibility);
+
+    await updateDoc(doc(db, 'users', currentUserId), {
+      visibility: newVisibility,
+    });
+
+    setVisibility(newVisibility); // update local state AFTER successful update
+    alert(`Profile visibility set to ${newVisibility ? 'Public' : 'Private'}`);
+  } catch (err) {
+    console.error('Error updating visibility:', err);
+    alert('There was an error updating your visibility in the database.');
+  }
+};
+
+
+
+
+  // ========== TC1: Delete Account ==========
   const confirmAndDeleteAccount = async () => {
     const user = auth.currentUser;
-    if (!user) return;
+    if (!user) {
+      console.warn('No user to delete');
+      return;
+    }
 
-    //Ask user for confirmation
     const confirmDelete = window.confirm(
-      'Delete your account permanently?'
+      'Delete your account permanently? This action cannot be undone.'
     );
     if (!confirmDelete) return;
 
     try {
-      //1. Remove user document from Firestore
       await deleteDoc(doc(db, 'users', user.uid));
-
-      //2. Remove user from Firebase Authentication
       await deleteUser(user);
-
-      //Confirm deletion
       alert('Account successfully deleted.');
     } catch (err) {
       console.error('Deletion error:', err);
-      alert('Error deleting account. You may need to log in again.');
+      alert('Error deleting account. You may need to re-authenticate.');
     }
   };
 
-  //FRONT-END UI
+  // ========== FRONTEND JSX ==========
   return (
     <div style={{ padding: '20px' }}>
       <h1>Profile Settings</h1>
 
-      {/*Bio Update Box*/}
+      {/* === Bio Update Section === */}
       <div style={{ marginBottom: '24px' }}>
         <label htmlFor="bio">Bio</label>
         <br />
@@ -100,7 +149,22 @@ const ProfileSetting = () => {
         <button onClick={updateUserBio}>Save Bio</button>
       </div>
 
-      {/* Account Deletion Box */}
+      {/* === Visibility Toggle Section === */}
+      
+      
+      <div style={{ marginBottom: '24px' }}>
+  <label>
+    <input
+      type="checkbox"
+      checked={visibility}
+      onChange={toggleVisibility}
+    />
+    {' '}Profile is {visibility ? 'Public' : 'Private'}
+  </label>
+</div>
+
+
+      {/* === Delete Account Section === */}
       <div>
         <button
           style={{
@@ -120,3 +184,16 @@ const ProfileSetting = () => {
 };
 
 export default ProfileSetting;
+
+
+//TC: change password 
+//TC: Add profile pic 
+
+
+//Use case 1: Manage Account
+//Use case 2: Manage and View Profile
+//
+//updatePassword
+//visibilitySetting
+
+//phase 5 needs 4 test cases, but when presenting final roject we need all of ur test cases .
