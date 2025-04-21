@@ -10,7 +10,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 //-------------Nevin: Leaderboard-------------------
 const checkLoginStreak = async (uid) => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
   const userRef = doc(db, 'Leaderboard', uid);
   const userSnap = await getDoc(userRef);
 

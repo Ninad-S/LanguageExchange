@@ -37,7 +37,7 @@ const SignUp = () => {
         uid: newUID,
         points: 50,
         loginStreak: 1,
-        lastLoginDate: new Date().toISOString().split('T')[0],
+        lastLoginDate: new Date().toLocaleDateString('en-CA'),
         congratulations: 0,
         congratulatedBy: [],
         friendRequestSent: false,
