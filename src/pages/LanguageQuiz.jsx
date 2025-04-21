@@ -33,6 +33,26 @@ const LanguageQuiz = () => {
   // variable to take account of new set of questions
   const [newQuestions, setNewQuestions] = useState([]);
 
+  //import user's language preferences to generate questions for the quiz
+  const [LanguagePrefs, setLanguagePrefs] = useState([]);
+
+  //extracts the user language preference data from the database to be used in determining quiz questions
+  useEffect(() => {
+    const getUserLanguage = async () => {
+      const user = auth.currentUser;
+      if(user) {
+        //define cloud firestore database to get the user language preferences
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        if(userSnap.exists()) {
+          const data = userSnap.data();
+          setLanguagePrefs(data.LanguagePrefs || []);
+        }
+      }
+    };
+    getUserLanguage();
+  }, []);
+
   //import words from saved word bank to be used in quiz
   useEffect(() => {
     const db = getDatabase(app); 
@@ -46,7 +66,7 @@ const LanguageQuiz = () => {
         // convert word objects to array
         const words = Object.values(data);
 
-        //convert the word objects into question
+        //convert the word objects into questions to be stored in the db
         const wordToQuestion = words.map((item) => ({
           question: item.word,
           answerKey: item.translation,
@@ -78,13 +98,18 @@ const LanguageQuiz = () => {
       // check if there's data in the database
       if (data) {
         // convert object to array
+        const totalQ = Object.values(data);
+        // filter by the language preferences
+        const filteredQuestions = allQuestions.filter(question => 
+          LanguagePrefs.includes(question.qLang) 
+        );
         // shuffle the questions so they will be randomly given
-        const shuffle = Object.values(data).sort(() => Math.random() - 0.2);
+        const shuffle = totalQ.sort(() => Math.random() - 0.2);
         // save to state
         setQuestions(shuffle); 
       }
     });
-  }, []);
+  }, [LanguagePrefs]);
 
   // function that lets user move on to the next question
   const nextButton = () => {
