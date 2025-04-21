@@ -58,6 +58,7 @@ const ProfileSetting = () => {
   };
 
   // ========== TC3: Toggle Profile Visibility ==========
+  /*
   const toggleVisibility = async () => {
     console.log('Toggling visibility from', visibility, 'to', !visibility);
 
@@ -76,6 +77,33 @@ const ProfileSetting = () => {
       console.error('Error updating visibility:', err);
     }
   };
+*/
+
+const toggleVisibility = async () => {
+  if (!currentUserId) {
+    console.warn('User ID not set when trying to toggle visibility');
+    return;
+  }
+
+  const newVisibility = !visibility;
+
+  try {
+    console.log('Updating visibility to:', newVisibility);
+
+    await updateDoc(doc(db, 'users', currentUserId), {
+      visibility: newVisibility,
+    });
+
+    setVisibility(newVisibility); // update local state AFTER successful update
+    alert(`Profile visibility set to ${newVisibility ? 'Public' : 'Private'}`);
+  } catch (err) {
+    console.error('Error updating visibility:', err);
+    alert('There was an error updating your visibility in the database.');
+  }
+};
+
+
+
 
   // ========== TC1: Delete Account ==========
   const confirmAndDeleteAccount = async () => {
@@ -122,16 +150,19 @@ const ProfileSetting = () => {
       </div>
 
       {/* === Visibility Toggle Section === */}
+      
+      
       <div style={{ marginBottom: '24px' }}>
-        <label>
-          <input
-            type="checkbox"
-            checked={visibility}
-            onChange={toggleVisibility}
-          />
-          {' '}Profile is {visibility ? 'Public' : 'Private'}
-        </label>
-      </div>
+  <label>
+    <input
+      type="checkbox"
+      checked={visibility}
+      onChange={toggleVisibility}
+    />
+    {' '}Profile is {visibility ? 'Public' : 'Private'}
+  </label>
+</div>
+
 
       {/* === Delete Account Section === */}
       <div>
@@ -153,6 +184,10 @@ const ProfileSetting = () => {
 };
 
 export default ProfileSetting;
+
+
+//TC: change password 
+//TC: Add profile pic 
 
 
 //Use case 1: Manage Account
