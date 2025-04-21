@@ -319,8 +319,7 @@ const LanguageQuiz = () => {
         <div className="card">
           <h1 className="title">Language Quiz</h1>
           <div>
-            <h2 className="question">
-              {question}</h2>
+            <h2 className="question">{question}</h2>
             {questionType === 'MCQ' ? (
               <ul>
                 {answers.map((item, index) => (
@@ -330,7 +329,7 @@ const LanguageQuiz = () => {
                     onClick={() => {
                       setSelectedAnswer(item);
                       setSelectedAnswerIndex(index);
-                    }}  
+                    }}
                   >
                     {item}
                   </button>
@@ -338,80 +337,89 @@ const LanguageQuiz = () => {
               </ul>
             ) : (
               <input
+                className="searchBar"
                 type="text"
                 value={selectedAnswer}
                 onChange={(e) => setSelectedAnswer(e.target.value)}
                 placeholder="Type your answer"
               />
             )}
-            <button 
-            className="nextButton"
-            onClick={nextButton} 
-            
-            >
+            <button className="nextButton" onClick={nextButton}>
               Next
             </button>
           </div>
-          <div className='index'>
+          <div className="index">
             Question {currentQuestion + 1} of {questions.length}
           </div>
         </div>
       ) : (
-        <div className='results'>
-          <h2>Quiz Results</h2>
-          <p>Your score: {calcFinalScore()} %</p>
-          <p>Correct Answers: {result.correctAnswers}</p>
-          <p>Incorrect Answers: {result.incorrectAnswers}</p>
-          <ul>
-            {answeredQuestions.map((item, index) => (
-            <li key={index}>
-              <p style={{ color: item.correct ? '#16de47' : '#ff3333' }}>{item.question}</p>
-              <p> Your answer: {item.userAnswer} </p>
-              {!item.correct && (
-                <p> Correct answer: {item.correctAnswer}</p>
-              )}
-            </li>
-            ))}
-            <button
-            onClick={() => {
-              compileQuizzes();
-              resetQuiz();
-            }}
-          >
-            Retry
-          </button>
-          </ul>
-          <p> Search Quiz Results </p>
-          <input
-            type="text"
-            placeholder="Date of result (ex. 4/4/24)"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-          />
-          <button onClick={searchResult}>
-            Next
-          </button>
-          <table>
-            <thead>
-              <tr>
-                <th> Date of Quiz </th>
-                <th> Final Score </th>
-                <th> Correct Answers </th>
-                <th> Incorrect Answers </th>
-              </tr>
-            </thead>
-            <tbody>
-              {searchQuery.map((result, index) => (
-                <tr key={index}>
-                  <td>{result.date}</td>
-                  <td>{result.finalScore}</td>
-                  <td>{result.correctAnswers}</td>
-                  <td>{result.incorrectAnswers}</td>
-                </tr>
+        <>
+          <div className="results">
+            <h2 className="title">Quiz Results</h2>
+            <p className="text">Your score: {calcFinalScore()}%</p>
+            <p className="text">Correct Answers: {result.correctAnswers}</p>
+            <p className="text">Incorrect Answers: {result.incorrectAnswers}</p>
+            <ul className="resultstext">
+              {answeredQuestions.map((item, index) => (
+                <li key={index}>
+                  <p style={{ color: item.correct ? '#16de47' : '#ff3333' }}>
+                    {item.question}
+                  </p>
+                  <p>Your answer: {item.userAnswer}</p>
+                  {!item.correct && (
+                    <p>Correct answer: {item.correctAnswer}</p>
+                  )}
+                </li>
               ))}
-            </tbody>
-          </table>
-        </div>   
+            </ul>
+            <button
+              className="nextButton"
+              onClick={() => {
+                compileQuizzes();
+                resetQuiz();
+              }}
+            >
+              Retry
+            </button>
+          </div>
+          <div className="search-container">
+            <p className="title">Search Quiz Results</p>
+            <input
+              className="searchBar"
+              type="text"
+              placeholder="Date of result (ex. 4/4/24)"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <button className="nextButton" onClick={searchResult}>
+              Next
+            </button>
+            {searchQuery.length > 0 && (
+              <div className="search-results">
+                <table className="text">
+                  <thead>
+                    <tr>
+                      <th className="text">Date of Quiz</th>
+                      <th className="text">Final Score</th>
+                      <th className="text">Correct Answers</th>
+                      <th className="text">Incorrect Answers</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {searchQuery.map((result, index) => (
+                      <tr key={index}>
+                        <td>{result.date}</td>
+                        <td>{result.finalScore}</td>
+                        <td>{result.correctAnswers}</td>
+                        <td>{result.incorrectAnswers}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
