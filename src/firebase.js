@@ -26,4 +26,6 @@ const payments = getStripePayments(app, {
   customersCollection: "customers"
 });
 
+
 export { app, auth, db, rtdb, payments};
+

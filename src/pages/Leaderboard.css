@@ -1,0 +1,119 @@
+/* Leaderboard.css */
+
+/* Main container */
+.leaderboard-container {
+    padding: 2rem;
+  }
+  
+  /* Page title */
+  .leaderboard-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  /* Description under title */
+  .leaderboard-description {
+    margin-bottom: 1.5rem;
+  }
+  
+  /* List of all user cards */
+  .leaderboard-user-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Individual user card */
+  .leaderboard-user-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* User rank (left number) */
+  .leaderboard-rank {
+    width: 30px;
+    font-weight: bold;
+  }
+  
+  /* Info section with avatar and text */
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+  }
+  
+  /* Avatar circle */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e2d3e9;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* User name text */
+  .user-name {
+    font-weight: 600;
+  }
+  
+  /* User points text */
+  .user-points {
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  /* Container for buttons */
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  /* Shared base styles for both buttons */
+  .congrats-button,
+  .friend-button {
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  /* When user has already congratulated */
+  .congrats-button.active {
+    background-color: #d4edda;
+  }
+  
+  /* When user has already sent a friend request */
+  .friend-button.active {
+    background-color: #a2d5f2;
+  }
+
+  /* Highlighted user row */
+  .highlighted-user {
+    border: 3px solid #4285f4;
+    box-shadow: 0 0 10px rgba(66, 133, 244, 0.2);
+    font-weight: bold;
+  }
+
+  .congrats-display {
+    background-color: #e2e3e5;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #333;
+    pointer-events: none;
+    cursor: default;
+    user-select: none;
+  }
+
+  

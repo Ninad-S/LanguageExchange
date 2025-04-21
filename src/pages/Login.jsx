@@ -1,8 +1,48 @@
+
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+//-------------Nevin: Leaderboard-------------------
+import { db } from '../firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+//-------------Nevin: Leaderboard-------------------
+
+//-------------Nevin: Leaderboard-------------------
+const checkLoginStreak = async (uid) => {
+  const today = new Date().toLocaleDateString('en-CA');
+  const userRef = doc(db, 'Leaderboard', uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) return;
+
+  const data = userSnap.data();
+  const lastLogin = data.lastLoginDate;
+
+  if (lastLogin === today) return; // already logged in today
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+  let newStreak = 1;
+  let newPoints = data.points + 50;
+
+  if (lastLogin === yesterdayStr) {
+    newStreak = data.loginStreak + 1;
+    newPoints += 10 * newStreak;
+  }
+
+  await updateDoc(userRef, {
+    lastLoginDate: today,
+    loginStreak: newStreak,
+    points: newPoints,
+  });
+
+  console.log(`🔥 Streak updated! ${newStreak} days, ${newPoints} points`);
+};
+//-------------Nevin: Leaderboard-------------------
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,6 +53,12 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      
+      //-------------Nevin: Leaderboard-------------------
+      const uid = auth.currentUser.uid;
+      await checkLoginStreak(uid);
+      //-------------Nevin: Leaderboard-------------------
+
       console.log("✅ Login successful:", auth.currentUser.email);
       navigate('/profile-setting');
     } catch (err) {

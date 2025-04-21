@@ -29,6 +29,23 @@ const SignUp = () => {
         knownLangs: [],
         learningLangs: []
       });
+      
+      //-------------Nevin: Leaderboard-------------------
+      //add the user also to the leaderboard
+      await setDoc(doc(db, 'Leaderboard', newUID), {
+        name: email.split('@')[0],
+        uid: newUID,
+        points: 50,
+        loginStreak: 1,
+        lastLoginDate: new Date().toLocaleDateString('en-CA'),
+        congratulations: 0,
+        congratulatedBy: [],
+        friendRequestSent: false,
+        correctAnswers: 0,
+        quizzesCompleted: 0,
+      });
+      //-------------Nevin: Leaderboard-------------------
+
     } catch (err) {
       console.log(err);
       alert('Signup failed: ' + err.message);

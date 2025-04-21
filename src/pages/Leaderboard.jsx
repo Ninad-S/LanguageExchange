@@ -1,177 +1,200 @@
 // src/pages/Leaderboard.jsx
-//Nevin Shiju
+// Nevin Shiju
 /*
 I have implemented a base layout of the leaderboard page for our app.
 The leaderboard is displayed with data I inputted for now.
 Both the "Congratulate!" and "Add Friend" buttons work as seen in my test cases.
 */
 
-import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { db } from '../firebase';
+import { collection, getDocs, doc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { auth } from '../firebase';
 
-// initial data
-const initialData = [
-  { name: 'John Doe', points: 5000, congratulations: 6, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 4800, congratulations: 4, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 4600, congratulations: 2, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 4400, congratulations: 2, hasCongratulated: false, friendRequestSent: false },
-  { name: 'John Doe', points: 4200, congratulations: 2, hasCongratulated: false, friendRequestSent: false },
-];
+import React, { useState } from 'react';
+import './Leaderboard.css';
 
 const Leaderboard = () => {
   // state with the initial leaderboard data
-  const [leaderboard, setLeaderboard] = useState(initialData);
+  const [leaderboard, setLeaderboard] = useState([]);
 
-  // congratulations button
-  const handleCongratulate = (index) => {
-    const newLeaderboard = leaderboard.map((user, idx) => {
-      if (idx === index) {
-        let newCongratulations;
-        if (user.hasCongratulated) {
-          newCongratulations = user.congratulations - 1;
-        } 
-        else {
-          newCongratulations = user.congratulations + 1;
-        }
-        return {
-          ...user,
-          congratulations: newCongratulations,
-          hasCongratulated: !user.hasCongratulated,
-        };
-      } 
-      else {
-        return user;
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'Leaderboard'));
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        //sort the data
+        data.sort((a, b) => b.points - a.points);
+
+        setLeaderboard(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard data:', error);
       }
-    });
+    };
+  
+    fetchLeaderboard();
+  }, []);
+
+  const handleCongratulate = async (index) => {
+    const currentUID = auth.currentUser?.uid;
+    const user = leaderboard[index];
+  
+    // Check if the user is logged in
+    if (!currentUID) {
+      alert("Please log in to congratulate.");
+      return;
+    }
+  
+    if (user.uid === currentUID) {
+      alert("You can't congratulate yourself");
+      return;
+    }
+  
+    const hasCongratulated = user.congratulatedBy?.includes(currentUID);
+    const newCount = hasCongratulated
+      ? user.congratulations - 1
+      : user.congratulations + 1;
+  
+    const updatedUser = {
+      ...user,
+      congratulations: newCount,
+      congratulatedBy: hasCongratulated
+        ? user.congratulatedBy.filter(uid => uid !== currentUID)
+        : [...(user.congratulatedBy || []), currentUID],
+    };
+  
+    const newLeaderboard = [...leaderboard];
+    newLeaderboard[index] = updatedUser;
     setLeaderboard(newLeaderboard);
+  
+    try {
+      const userRef = doc(db, 'Leaderboard', user.id);
+  
+      await updateDoc(userRef, {
+        congratulations: newCount,
+        congratulatedBy: hasCongratulated
+          ? arrayRemove(currentUID)
+          : arrayUnion(currentUID),
+      });
+    } catch (error) {
+      console.error("Error updating congratulations:", error);
+    }
   };
 
-  // add friend button
-  const handleAddFriend = (index) => {
-    const newLeaderboard = leaderboard.map((user, idx) => {
-      if (idx === index) {
-        // check the current friend request status
-        if (user.friendRequestSent) {
-          // if a friend request was already sent, set it to false.
-          return { 
-            ...user, friendRequestSent: false 
-          };
-        } 
-        else {
-          return { 
-            ...user, friendRequestSent: true 
-          };
-        }
-      } 
-      else {
-        return user;
+  const handleAddFriend = async (index) => {
+    const currentUID = auth.currentUser?.uid;
+    const targetUser = leaderboard[index];
+  
+    if (!currentUID) {
+      alert("Please log in to send a friend request.");
+      return;
+    }
+    if (currentUID === targetUser.uid) {
+      alert("You can't send a friend request to yourself");
+      return;
+    }
+  
+    const newStatus = !targetUser.friendRequestSent;
+  
+    // Update the UI
+    const updatedUser = {
+      ...targetUser,
+      friendRequestSent: newStatus,
+    };
+    const updatedLeaderboard = [...leaderboard];
+    updatedLeaderboard[index] = updatedUser;
+    setLeaderboard(updatedLeaderboard);
+  
+    try {
+      const targetRef = doc(db, 'users', targetUser.uid, 'friendRequests', currentUID);
+  
+      if (newStatus) {
+        await setDoc(targetRef, {
+          from: currentUID,
+          status: 'pending',
+          timestamp: new Date(),
+        });
+      } else {
+        await deleteDoc(targetRef);
       }
-    });
-    setLeaderboard(newLeaderboard);
+  
+      // no alert, just visual feedback through UI state
+    } catch (error) {
+      console.error('Failed to update friend request:', error);
+    }
   };
 
+  // Get the current user's UID
+  const currentUID = auth.currentUser?.uid;
+  const loggedInUserIndex = leaderboard.findIndex(user => user.uid === currentUID);
+  const loggedInUser = leaderboard[loggedInUserIndex];
+  const topUserBgColor = loggedInUserIndex % 2 === 0 ? '#b2e0f5' : '#cbbce5';
+  
   return (
-    // main container with padding
-    <div style={{ padding: '2rem' }}>
+    <div className="leaderboard-container">
+      <h1 className="leaderboard-title">Leaderboard</h1>
+      <p className="leaderboard-description">See where you rank among other learners.</p>
 
-      {/* title and description */}
-      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-        Leaderboard
-      </h1>
-      <p style={{ marginBottom: '1.5rem' }}>
-        See where you rank among other learners.
-      </p>
+      {loggedInUser && (
+        <div
+          className="leaderboard-user-card highlighted-user"
+          style={{ backgroundColor: topUserBgColor, marginBottom: '20px' }}
+        >
+          <div className="leaderboard-rank">{loggedInUserIndex + 1}</div>
 
-      {/* container for users */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="user-info">
+            <div className="avatar">{/* profile pic later */}</div>
+            <div>
+              <div className="user-name">{loggedInUser.name}</div>
+              <div className="user-points">{loggedInUser.points} Points</div>
+            </div>
+          </div>
+
+          <div className="action-buttons">
+          <div className="congrats-display">
+            Congratulate! ({loggedInUser.congratulations})
+          </div>
+          </div>
+        </div>
+      )}
+
+      <div className="leaderboard-user-list">
         {leaderboard.map((user, index) => {
-
-          // alternate background color.
           const bgColor = index % 2 === 0 ? '#b2e0f5' : '#cbbce5';
+          const hasCongratulated = user.congratulatedBy?.includes(currentUID);
 
           return (
-
-            // user card container with key and styles
             <div
               key={index}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: bgColor,
-                borderRadius: '10px',
-                padding: '1rem',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-              }}
+              className={`leaderboard-user-card ${user.uid === currentUID ? 'highlighted-user' : ''}`}
+              style={{ backgroundColor: bgColor }}
             >
-              {/* user rank (index + 1) */}
-              <div style={{ width: '30px', fontWeight: 'bold' }}>
-                {index + 1}
-              </div>
+              <div className="leaderboard-rank">{index + 1}</div>
 
-              {/* user information: pp, name, and points */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  flex: 1,
-                }}
-              >
-                {/* profile pic placeholder */}
-                <div
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    backgroundColor: '#e2d3e9',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-
-                {/* Emoji or image can go here */}
-                {/* add later */}
-
+              <div className="user-info">
+                <div className="avatar">
+                  {/* add profile pic later */}
                 </div>
-                {/* User name and points */}
                 <div>
-                  <div style={{ fontWeight: '600' }}>{user.name}</div>
-                  <div style={{ fontSize: '0.9rem', color: '#555' }}>
-                    {user.points} Points
-                  </div>
+                  <div className="user-name">{user.name}</div>
+                  <div className="user-points">{user.points} Points</div>
                 </div>
               </div>
 
-              {/* Container for the two buttons*/}
-              <div style={{ display: 'flex', gap: '10px' }}>
-
-                {/* Congratulate Button */}
+              <div className="action-buttons">
                 <button
                   onClick={() => handleCongratulate(index)}
-                  style={{
-                    backgroundColor: user.hasCongratulated ? '#d4edda' : 'white',
-                    border: '1px solid #ccc',
-                    borderRadius: '20px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                  }}
+                  className={`congrats-button ${hasCongratulated ? 'active' : ''}`}
                 >
                   Congratulate! ({user.congratulations})
                 </button>
-
-                {/* Add Friend Button */}
                 <button
                   onClick={() => handleAddFriend(index)}
-                  style={{
-                    backgroundColor: user.friendRequestSent ? '#a2d5f2' : 'white',
-                    border: '1px solid #ccc',
-                    borderRadius: '20px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                  }}
+                  className={`friend-button ${user.friendRequestSent ? 'active' : ''}`}
                 >
                   {user.friendRequestSent ? 'Friend Request Sent' : 'Add Friend'}
                 </button>
