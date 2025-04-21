@@ -39,3 +39,4 @@ To run the program localy:
 1. Open code in VS code.
 2. Run the command, "npm run dev" on terminal.
 3. Paste the url on a web browser.
+Link to video instruction: https://drive.google.com/file/d/180tlXVqrkYOV1JBpej7fnmm3ENLtgyio/view?usp=sharing
