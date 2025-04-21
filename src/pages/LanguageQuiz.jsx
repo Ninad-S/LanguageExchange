@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
 import { doc, updateDoc, getDoc, collection } from 'firebase/firestore';
 import { app, db, auth } from '../firebase';
+import './LanguageQuiz.css';
 
 
 // This holds the primary working code where the language quiz will show up on the front end.
@@ -43,7 +44,9 @@ const LanguageQuiz = () => {
       if(user) {
         //define cloud firestore database to get the user language preferences
         const userRef = doc(db, 'users', user.uid);
+        //snapshot of user data assigned
         const userSnap = await getDoc(userRef);
+        //checks if data in the snapshot exists to set the langugae preferences for the quiz questions
         if(userSnap.exists()) {
           const data = userSnap.data();
           setLanguagePrefs(data.LanguagePrefs || []);
@@ -100,7 +103,7 @@ const LanguageQuiz = () => {
         // convert object to array
         const totalQ = Object.values(data);
         // filter by the language preferences
-        const filteredQuestions = allQuestions.filter(question => 
+        const filteredQuestions = totalQ.filter(question => 
           LanguagePrefs.includes(question.qLang) 
         );
         // shuffle the questions so they will be randomly given
@@ -311,21 +314,23 @@ const LanguageQuiz = () => {
   // There are placeholders currently set for the question, the answer choices and the answer along with the max number of questions to be received from the database  
   // There is also the Quiz results shown after the quiz is taken to show the resulting score and which questions are correct and incorrect
   return (
-    <div className='quiz'>
+    <div className="container">
       {!showFinalResult ? (
-        <div>
-          <h1>Language Quiz</h1>
+        <div className="card">
+          <h1 className="title">Language Quiz</h1>
           <div>
-            <h2>{question}</h2>
+            <h2 className="question">
+              {question}</h2>
             {questionType === 'MCQ' ? (
               <ul>
                 {answers.map((item, index) => (
                   <button
+                    className="option"
                     key={index}
                     onClick={() => {
                       setSelectedAnswer(item);
                       setSelectedAnswerIndex(index);
-                    }}
+                    }}  
                   >
                     {item}
                   </button>
@@ -340,8 +345,9 @@ const LanguageQuiz = () => {
               />
             )}
             <button 
+            className="nextButton"
             onClick={nextButton} 
-            style={{ marginTop: '20px' }}
+            
             >
               Next
             </button>
