@@ -155,19 +155,19 @@ const Pricing = () => {
      {
        id: 'free_plan',
        name: 'Free',
-       description: '3 language partners\nBasic features\nAds included',
+       description: 'Limited language partners\nLimited saved words\nNo priority support',
        prices: [{ price: 0 }]
      },
      {
        id: 'basic_plan',
        name: 'Basic',
-       description: '10 language partners\nAd-free experience',
+       description: 'Unlimited language partners\nLimited saved words\n Priority support',
        prices: [{ price: 500 }]
      },
      {
        id: 'premium_plan',
        name: 'Premium',
-       description: 'Unlimited partners\nPriority support',
+       description: 'Unlimited language partners\nUnlimited saved words\n Priority support',
        prices: [{ price: 1000 }]
      }
    ];
