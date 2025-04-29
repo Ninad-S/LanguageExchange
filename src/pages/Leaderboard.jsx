@@ -147,7 +147,7 @@ const Leaderboard = () => {
           <div className="leaderboard-rank">{loggedInUserIndex + 1}</div>
 
           <div className="user-info">
-            <div className="avatar">{/* profile pic later */}</div>
+            <div className="avatar">{}</div>
             <div>
               <div className="user-name">{loggedInUser.name}</div>
               <div className="user-points">{loggedInUser.points} Points</div>

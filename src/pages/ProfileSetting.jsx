@@ -5,7 +5,7 @@
 // TC2: Update Bio
 // TC3: Toggle Profile Visibility
 // src/pages/ProfileSetting.jsx
-import { auth, db } from './firebase'; 
+import { auth, db } from '../firebase'; 
 import React, { useEffect, useState } from 'react';
 import './ProfileSetting.css'; // <-- your css file
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
