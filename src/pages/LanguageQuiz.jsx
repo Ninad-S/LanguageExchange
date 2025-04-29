@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
-import { doc, updateDoc, getDoc, collection } from 'firebase/firestore';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { app, db, auth } from '../firebase';
 import './LanguageQuiz.css';
 
@@ -16,9 +16,6 @@ const LanguageQuiz = () => {
   // assigns the variable that keeps track of the user's selected answer and sets the state of the variables as blank
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
-
-  // assigns variable for answer key to compare answer to and see if it is correct
-  const [answerKeyMap, setAnswerKeyMap] = useState({});
 
   // assigns variables for the results, including the score, correct and incorrect answers set to the default count of 0
   const [result, setResult] = useState({
@@ -54,6 +51,15 @@ const LanguageQuiz = () => {
     };
     getUserLanguage();
   }, []);
+  
+  //checks for duplicates in the question db
+  const isDuplicateQuestion = (newQuestion, existingQuestions) => {
+    return existingQuestions.some(
+      (q) =>
+        q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
+        q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
+    );
+  };
 
   //import words from saved word bank to be used in quiz
   useEffect(() => {
@@ -75,16 +81,37 @@ const LanguageQuiz = () => {
           questionType: "Short Answer",
           qLang: item.language,
         }));
+
+        //duplicate checking in the array
+        const filtered = wordToQuestion.filter((newQuestion) =>
+          !isDuplicateQuestion(newQuestion, questions)
+        );
+
         // save to state
-        setNewQuestions(wordToQuestion);
+        setNewQuestions(prevQuestions => [...prevQuestions, ...filtered]);
       }
     });
   }, []);
 
-  //combines the saved word questions to the quiz question list
+  //combines the saved word questions to the quiz question db
   useEffect(() => {
-    setQuestions((prev) => [...prev, ...newQuestions].sort(() => Math.random() - 0.5));
-  }, [newQuestions]);
+    setQuestions((prev) => {
+
+      // combines new questions with the existing questions
+      const allQuestions = [...prev, ...newQuestions];
+  
+      // filters out duplicate questions
+      const uniqueQuestions = allQuestions.filter((newQuestion, index, self) =>
+        index === self.findIndex((q) =>
+          q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
+          q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
+        )
+      );
+  
+      return uniqueQuestions.sort(() => Math.random() - 0.5); 
+    });
+  }, [newQuestions]); 
+  
 
   // uses the function to receive questions and answers from the database to be used in the quiz
   // assigns a question in random order into the quiz along with the answers.
@@ -94,7 +121,7 @@ const LanguageQuiz = () => {
     const questionsRef = ref(db, 'questions'); 
   
     // fetch and listen to changes in the "questions" node
-    onValue(questionsRef, (snapshot) => {
+    onValue(questionsRef, async (snapshot) => {
       // get the data object
       const data = snapshot.val(); 
       // check if there's data in the database
@@ -106,9 +133,21 @@ const LanguageQuiz = () => {
           LanguagePrefs.includes(question.qLang) 
         );
         // shuffle the questions so they will be randomly given
-        const shuffle = totalQ.sort(() => Math.random() - 0.2);
+        const shuffle = (prevQuestions => [...prevQuestions, ...filteredQuestions].sort(() => Math.random() - 0.5));
         // save to state
         setQuestions(shuffle); 
+      }
+
+       // filters out duplicate questions
+       const uniqueQuestions = allQuestions.filter((newQuestion, index, self) =>
+       index === self.findIndex((q) =>
+         q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
+         q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
+       )
+     );
+
+      for(const newQuestion of uniqueQuestions) {
+        const newQuestionsRef = push(questionsRef);
       }
     });
   }, [LanguagePrefs]);
@@ -353,70 +392,74 @@ const LanguageQuiz = () => {
         </div>
       ) : (
         <>
-          <div className="results">
-            <h2 className="title">Quiz Results</h2>
-            <p className="text">Your score: {calcFinalScore()}%</p>
-            <p className="text">Correct Answers: {result.correctAnswers}</p>
-            <p className="text">Incorrect Answers: {result.incorrectAnswers}</p>
-            <ul className="resultstext">
-              {answeredQuestions.map((item, index) => (
-                <li key={index}>
-                  <p style={{ color: item.correct ? '#16de47' : '#ff3333' }}>
-                    {item.question}
-                  </p>
-                  <p>Your answer: {item.userAnswer}</p>
-                  {!item.correct && (
-                    <p>Correct answer: {item.correctAnswer}</p>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <button
-              className="retryButton"
-              onClick={() => {
-                compileQuizzes();
-                resetQuiz();
-              }}
-            >
-              Retry
-            </button>
+          <div className='resultsWrapper'>
+            <div className="results">
+              <h2 className="title">Quiz Results</h2>
+              <p className="scoretext">Your score: {calcFinalScore()}%</p>
+              <p className="scoretext">Correct Answers: {result.correctAnswers}</p>
+              <p className="scoretext">Incorrect Answers: {result.incorrectAnswers}</p>
+              <ul className="resultstext">
+                {answeredQuestions.map((item, index) => (
+                  <li key={index}>
+                    <p style={{ color: item.correct ? '#16de47' : '#ff3333' }}>
+                      {item.question}
+                    </p>
+                    <p>Your answer: {item.userAnswer}</p>
+                    {!item.correct && (
+                      <p>Correct answer: {item.correctAnswer}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <button
+                className="retryButton"
+                onClick={() => {
+                  compileQuizzes();
+                  resetQuiz();
+                }}
+              >
+                Retry
+              </button>
+            </div>
           </div>
-          <div className="search-container">
-            <p className="title">Search Quiz Results</p>
-            <input
-              className="searchBar"
-              type="text"
-              placeholder="Date of result (ex. 4/4/24)"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
-            <button className="nextButton" onClick={searchResult}>
-              Next
-            </button>
-            {searchQuery.length > 0 && (
-              <div className="search-results">
-                <table className="text">
-                  <thead>
-                    <tr>
-                      <th className="text">Date of Quiz</th>
-                      <th className="text">Final Score</th>
-                      <th className="text">Correct Answers</th>
-                      <th className="text">Incorrect Answers</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {searchQuery.map((result, index) => (
-                      <tr key={index}>
-                        <td>{result.date}</td>
-                        <td>{result.finalScore}</td>
-                        <td>{result.correctAnswers}</td>
-                        <td>{result.incorrectAnswers}</td>
+          <div className='searchWrapper'>
+            <div className="search-container">
+              <p className="title">Search Quiz Results</p>
+              <input
+                className="searchBar"
+                type="text"
+                placeholder="Date of result (ex. 4/4/24)"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+              />
+              <button className="nextButton" onClick={searchResult}>
+                Search
+              </button>
+              {searchQuery.length > 0 && (
+                <div className="tableWrapper">
+                  <table className='table'>
+                    <thead >
+                      <tr>
+                        <th className="tableHeader">Date of Quiz</th>
+                        <th className="tableHeader">Final Score</th>
+                        <th className="tableHeader">Correct Answers</th>
+                        <th className="tableHeader">Incorrect Answers</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody className="search-results">
+                      {searchQuery.map((result, index) => (
+                        <tr key={index}>
+                          <td>{result.date}</td>
+                          <td>{result.finalScore}</td>
+                          <td>{result.correctAnswers}</td>
+                          <td>{result.incorrectAnswers}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </div>
         </>
       )}
