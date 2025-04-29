@@ -6,6 +6,11 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import './ManageChats.css';
 import defaultProfilePicture from './default-profile.png';
 
+// 🔥 Helper function to always create sorted chatId
+function createChatId(user1, user2) {
+  return [user1, user2].sort().join('_');
+}
+
 const ManageChats = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [chats, setChats] = useState([]);
@@ -54,7 +59,7 @@ const ManageChats = () => {
             const senderData = senderDoc.data();
             return {
               ...req,
-              senderName: senderData.name, // Add the sender's name
+              senderName: senderData.name,
               profilePicture: senderData.profilePicture || defaultProfilePicture,
             };
           }
@@ -74,13 +79,12 @@ const ManageChats = () => {
     const fetchChatsWithNames = async () => {
       const updatedChats = await Promise.all(
         chats.map(async (otherUserId) => {
-          // Fetch the other user's document
           const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
           if (otherUserDoc.exists()) {
             const otherUserData = otherUserDoc.data();
             return {
               id: otherUserId,
-              name: otherUserData.name, // Use the other user's name
+              name: otherUserData.name,
               profilePicture: otherUserData.profilePicture || defaultProfilePicture,
             };
           } else {
@@ -107,7 +111,6 @@ const ManageChats = () => {
     const senderRef = doc(db, 'users', senderId);
 
     try {
-      // Fetch both users' documents
       const [currentSnap, senderSnap] = await Promise.all([
         getDoc(currentUserRef),
         getDoc(senderRef),
@@ -121,23 +124,20 @@ const ManageChats = () => {
         (req) => req.senderId !== currentUser.id
       );
 
-      // Update both users' documents in Firestore
+      // Update both users' documents
       await Promise.all([
-        // Add the sender's ID to the current user's chats
         updateDoc(currentUserRef, {
           chats: arrayUnion(senderId),
           chatRequests: (currentData.chatRequests || []).filter((req) => req.senderId !== senderId),
         }),
-        // Add the current user's ID to the sender's chats
         updateDoc(senderRef, {
           chats: arrayUnion(currentUser.id),
           chatRequests: updatedSenderRequests || [],
         }),
       ]);
 
-      // Update local state
       setRequests((prev) => prev.filter((req) => req.senderId !== senderId));
-      setChats((prev) => [...prev, senderId]); // Add senderId to the local chats array
+      setChats((prev) => [...prev, senderId]);
     } catch (error) {
       console.error("Error accepting request:", error);
     }
@@ -148,12 +148,10 @@ const ManageChats = () => {
     const currentUserRef = doc(db, 'users', currentUser.id);
 
     try {
-      // Remove the request from the current user's chatRequests
       await updateDoc(currentUserRef, {
         chatRequests: arrayRemove({ senderId }),
       });
 
-      // Update local state
       setRequests((prev) => prev.filter((req) => req.senderId !== senderId));
     } catch (error) {
       console.error("Error declining request:", error);
@@ -162,7 +160,10 @@ const ManageChats = () => {
 
   // Navigate to a chat
   const handleChatClick = (otherUserId) => {
-    navigate(`/chat/${otherUserId}`);
+    if (!currentUser) return;
+
+    const chatId = createChatId(currentUser.id, otherUserId);
+    navigate(`/chat/${chatId}`);
   };
 
   if (loading) return <p>Loading chats...</p>;
@@ -211,7 +212,7 @@ const ManageChats = () => {
         )}
 
         {activeTab === 'requests' && (
-          requests && requests.length > 0 ? (
+          requests.length > 0 ? (
             requests.map((req) => (
               <div key={req.senderId} className="chat-card request-card">
                 <img
