@@ -33,8 +33,8 @@ const LanguageQuiz = () => {
   //import user's language preferences to generate questions for the quiz
   const [LanguagePrefs, setLanguagePrefs] = useState([]);
 
-  //extracts the user language preference data from the database to be used in determining quiz questions
-  useEffect(() => {
+   //extracts the user language preference data from the database to be used in determining quiz questions
+   useEffect(() => {
     const getUserLanguage = async () => {
       const user = auth.currentUser;
       if(user) {
@@ -93,24 +93,10 @@ const LanguageQuiz = () => {
     });
   }, []);
 
-  //combines the saved word questions to the quiz question db
+  //combines the saved word questions to the quiz question list
   useEffect(() => {
-    setQuestions((prev) => {
-
-      // combines new questions with the existing questions
-      const allQuestions = [...prev, ...newQuestions];
-  
-      // filters out duplicate questions
-      const uniqueQuestions = allQuestions.filter((newQuestion, index, self) =>
-        index === self.findIndex((q) =>
-          q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
-          q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
-        )
-      );
-  
-      return uniqueQuestions.sort(() => Math.random() - 0.5); 
-    });
-  }, [newQuestions]); 
+    setQuestions((prev) => [...prev, ...newQuestions].sort(() => Math.random() - 0.5));
+  }, [newQuestions]);
   
 
   // uses the function to receive questions and answers from the database to be used in the quiz
@@ -121,7 +107,7 @@ const LanguageQuiz = () => {
     const questionsRef = ref(db, 'questions'); 
   
     // fetch and listen to changes in the "questions" node
-    onValue(questionsRef, async (snapshot) => {
+    onValue(questionsRef, (snapshot) => {
       // get the data object
       const data = snapshot.val(); 
       // check if there's data in the database
@@ -133,21 +119,9 @@ const LanguageQuiz = () => {
           LanguagePrefs.includes(question.qLang) 
         );
         // shuffle the questions so they will be randomly given
-        const shuffle = (prevQuestions => [...prevQuestions, ...filteredQuestions].sort(() => Math.random() - 0.5));
+        const shuffle = totalQ.sort(() => Math.random() - 0.2);
         // save to state
         setQuestions(shuffle); 
-      }
-
-       // filters out duplicate questions
-       const uniqueQuestions = allQuestions.filter((newQuestion, index, self) =>
-       index === self.findIndex((q) =>
-         q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
-         q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
-       )
-     );
-
-      for(const newQuestion of uniqueQuestions) {
-        const newQuestionsRef = push(questionsRef);
       }
     });
   }, [LanguagePrefs]);
@@ -359,20 +333,22 @@ const LanguageQuiz = () => {
           <div>
             <h2 className="question">{question}</h2>
             {questionType === 'MCQ' ? (
-              <ul className='text'>
-                {answers.map((item, index) => (
-                  <button
-                    className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
-                    key={index}
-                    onClick={() => {
-                      setSelectedAnswer(item);
-                      setSelectedAnswerIndex(index);
-                    }}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </ul>
+              <div>
+                <ul className="list">
+                  {answers.map((item, index) => (
+                    <button
+                      className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
+                      key={index}
+                      onClick={() => {
+                        setSelectedAnswer(item);
+                        setSelectedAnswerIndex(index);
+                      }}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </ul>
+              </div>
             ) : (
               <input
                 className="searchBar"
