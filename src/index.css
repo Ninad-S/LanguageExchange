@@ -25,12 +25,12 @@ a:hover {
 body {
   margin: 0;
   padding: 0;
-  background-color: transparent;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
   font-family: 'Inter', sans-serif;
+  background-color: transparent;
+  display: block;
+  min-height: 100vh;
+  min-width: 100vw;
+  overflow-x: hidden;
 }
 
 h1 {
