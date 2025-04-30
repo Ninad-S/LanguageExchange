@@ -47,17 +47,13 @@
     margin-bottom: 30px;
 }
 
-.list {
-    padding-left: 200px;
-    margin-bottom: 50px;
-}
-
 .option {
-    display: inline;
+    display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 20px;
     font-family: Inter, sans-serif;
-    font-size: 16px;
+    font-size: 2rem;
     color: rgb(0, 0, 0);
     padding: 10px 20px;
     border-radius: 8px;
@@ -84,14 +80,6 @@
     align-items: center;
     margin-right: 0;
 
-}
-
-.answerText {
-    padding-left: 0px;
-    font-size: 13px;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
 }
 
 .text {
