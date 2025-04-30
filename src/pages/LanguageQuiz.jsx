@@ -31,10 +31,10 @@ const LanguageQuiz = () => {
   const [newQuestions, setNewQuestions] = useState([]);
 
   //import user's language preferences to generate questions for the quiz
-  const [languagePrefs, setLanguagePrefs] = useState([]);
+  const [LanguagePrefs, setLanguagePrefs] = useState([]);
 
    //extracts the user language preference data from the database to be used in determining quiz questions
-  useEffect(() => {
+   useEffect(() => {
     const getUserLanguage = async () => {
       const user = auth.currentUser;
       if(user) {
@@ -45,18 +45,26 @@ const LanguageQuiz = () => {
         //checks if data in the snapshot exists to set the langugae preferences for the quiz questions
         if(userSnap.exists()) {
           const data = userSnap.data();
-          setLanguagePrefs(data.learningLangs || []);
+          setLanguagePrefs(data.LanguagePrefs || []);
         }
       }
     };
     getUserLanguage();
   }, []);
+  
+  //checks for duplicates in the question db
+  const isDuplicateQuestion = (newQuestion, existingQuestions) => {
+    return existingQuestions.some(
+      (q) =>
+        q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
+        q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
+    );
+  };
 
   //import words from saved word bank to be used in quiz
   useEffect(() => {
     const db = getDatabase(app); 
     const wordsRef = ref(db, 'savedUsers/testuser'); 
-    const questionsRef = ref(db, 'questions');
 
     onValue(wordsRef, (snapshot) => {
       // get the data object
@@ -74,45 +82,20 @@ const LanguageQuiz = () => {
           qLang: item.language,
         }));
 
-        // adds questions to the database to be used in the future
-        onValue(questionsRef, (questionsSnap) => {
-          const existingData = questionsSnap.val();
-          const existingQuestions = existingData ? Object.values(existingData) : [];
+        //duplicate checking in the array
+        const filtered = wordToQuestion.filter((newQuestion) =>
+          !isDuplicateQuestion(newQuestion, questions)
+        );
 
-          const existingSet = new Set (
-            existingQuestions.map(q => `${q.question}-${q.qLang}`)
-          );
-
-          // creates a function to cprevent duplicate questions from be added to the database
-          const uniqueNewQuestions = wordToQuestion.filter(
-            q => !existingSet.has(`${q.question}-${q.qLang}`)
-          );
-
-          // checks each questions to validate before adding to the database
-          uniqueNewQuestions.forEach((question) => {
-            const newQuestionRef = push(questionsRef);
-            set(newQuestionRef, question);
-          });
-
-          // sets questions to state
-          setNewQuestions(uniqueNewQuestions);
-        }, {
-            onlyOnce: true 
-        });
+        // save to state
+        setNewQuestions(prevQuestions => [...prevQuestions, ...filtered]);
       }
     });
   }, []);
+
   //combines the saved word questions to the quiz question list
   useEffect(() => {
-    setQuestions((prevQuestions) => {
-      const existingSet = new Set(prevQuestions.map(q => `${q.question}-${q.qLang}`));
-      
-      const filteredNewQuestions = newQuestions.filter(q =>
-        !existingSet.has(`${q.question}-${q.qLang}`)
-      );
-  
-      return [...prevQuestions, ...filteredNewQuestions].sort(() => Math.random() - 0.5);
-    });
+    setQuestions((prev) => [...prev, ...newQuestions].sort(() => Math.random() - 0.5));
   }, [newQuestions]);
   
 
@@ -133,7 +116,7 @@ const LanguageQuiz = () => {
         const totalQ = Object.values(data);
         // filter by the language preferences
         const filteredQuestions = totalQ.filter(question => 
-          languagePrefs.includes(question.qLang) 
+          LanguagePrefs.includes(question.qLang) 
         );
         // shuffle the questions so they will be randomly given
         const shuffle = totalQ.sort(() => Math.random() - 0.2);
@@ -141,7 +124,7 @@ const LanguageQuiz = () => {
         setQuestions(shuffle); 
       }
     });
-  }, [languagePrefs]);
+  }, [LanguagePrefs]);
 
   // function that lets user move on to the next question
   const nextButton = () => {
@@ -159,28 +142,12 @@ const LanguageQuiz = () => {
       setShowFinalResult(true); // end of quiz
     }
   };
-
-  // function that lets user move to the last question
-  const prevButton = () => {
-    // move to the last question or finish quiz
-    if (currentQuestion > 0) {
-      setCurrentQuestion((prev) => prev - 1);
-    } 
-  };
   
   // function that validates if the user's input is correct
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
-  const [correct, setCorrect] = useState(false); 
-
+  const [correct, setCorrect] = useState(false); ;
   const checkAnswer = () => {
-    //assigns current question to constant
     const current = questions[currentQuestion];
-
-    //error checking
-    if(!current) {
-      return;
-    }
-
     //checks correct answer for both mcq's and short answer questions by lowercasing the answer
     const correctAnswer = current?.answerKey?.toLowerCase().trim();
     //checks user answers for short answers by lowercasing all user inputs
@@ -312,7 +279,7 @@ const LanguageQuiz = () => {
   };
 
   // extract the current question and its fields from the array safely
-  const current = questions?.[currentQuestion];
+  const current = questions[currentQuestion];
   const question = current?.question;
   const answers = current?.answers || [];
   const questionType = current?.questionType;
@@ -366,7 +333,7 @@ const LanguageQuiz = () => {
           <div>
             <h2 className="question">{question}</h2>
             {questionType === 'MCQ' ? (
-              <div className="list">
+              <div>
                 <ul className="list">
                   {answers.map((item, index) => (
                     <button
@@ -393,9 +360,6 @@ const LanguageQuiz = () => {
             )}
             <button className="nextButton" onClick={nextButton}>
               Next
-            </button>
-            <button className="nextButton" onClick={prevButton}>
-              Back
             </button>
           </div>
           <div className="index">
