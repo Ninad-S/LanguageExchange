@@ -209,6 +209,7 @@ const styles = {
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
+    fontFamily: 'Inter, sans-serif',
     height: '90vh'
   },
   header: {

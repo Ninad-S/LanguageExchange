@@ -130,7 +130,7 @@ const toggleVisibility = async () => {
 
   // ========== FRONTEND JSX ==========
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', fontFamily: "'Inter', sans-serif" }}>
       <h1>Profile Settings</h1>
 
       {/* === Bio Update Section === */}

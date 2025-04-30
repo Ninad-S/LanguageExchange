@@ -3,6 +3,7 @@ import { collection, getDocs, doc, getDoc, updateDoc, arrayUnion } from 'firebas
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import './FindPartner.css';
+import defaultProfilePicture from './default-profile.png';
 
 const FindPartner = () => {
   const [users, setUsers] = useState([]);
@@ -117,13 +118,21 @@ const FindPartner = () => {
 
             return (
               <div key={match.id} className="partner-card">
-                <div className="partner-info">
-                  <h2>{match.name}</h2>
-                  <p><strong>Known Languages:</strong> {match.knownLangs.join(', ')}</p>
-                  <p><strong>Target Languages:</strong> {match.learningLangs.join(', ')}</p>
-                  {match.bio && <p><em>{match.bio}</em></p>}
+                <div className="partner-main">
+                  <div className="partner-profile-picture">
+                    <img
+                      src={match.profilePicture || defaultProfilePicture}
+                      alt={`${match.name}'s profile`}
+                      className="find-partner-profile-picture"
+                    />
+                  </div>
+                  <div className="partner-info">
+                    <h2>{match.name}</h2>
+                    <p>Known Languages: {match.knownLangs.join(', ')}</p>
+                    <p>Target Languages: {match.learningLangs.join(', ')}</p>
+                    {match.bio && <p className="partner-bio">{match.bio}</p>}
+                  </div>
                 </div>
-
                 {status === 'pending' ? (
                   <button className="chat-request-button" disabled>
                     Request Sent
