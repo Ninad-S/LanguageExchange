@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import { getDatabase, ref, push, set, onValue } from "firebase/database";
 import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { app, db, auth } from '../firebase';
-import './LanguageQuiz.css';
 
 // This holds the primary working code where the language quiz will show up on the front end.
 const LanguageQuiz = () => {
