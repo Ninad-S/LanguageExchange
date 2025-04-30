@@ -7,14 +7,14 @@ import { getStripePayments } from "@stripe/firestore-stripe-payments";
 console.log("Initializing Firebase...");
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyC3Kkb7ZD6RuOneXJ5TlYBR0vQ65PQhcco",
+  authDomain: "languagemate-18f43.firebaseapp.com",
+  databaseURL: "https://languagemate-18f43-default-rtdb.firebaseio.com",
+  projectId: "languagemate-18f43",
+  storageBucket: "languagemate-18f43.firebasestorage.app",
+  messagingSenderId: "429760668859",
+  appId: "1:429760668859:web:fc7fbe3989c853c9d0f59e",
+  measurementId: "G-S9SKJVSRXZ"
 };
 
 console.log("Firebase Config:", firebaseConfig);
