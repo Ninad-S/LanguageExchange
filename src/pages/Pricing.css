@@ -1,5 +1,5 @@
 .pricing-container {
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   max-width: 1200px;
   min-height: 100vh; /* Make container full viewport height */
   display: flex;

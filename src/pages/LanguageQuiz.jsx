@@ -356,7 +356,7 @@ const LanguageQuiz = () => {
   // There are placeholders currently set for the question, the answer choices and the answer along with the max number of questions to be received from the database  
   // There is also the Quiz results shown after the quiz is taken to show the resulting score and which questions are correct and incorrect
   return (
-    <div className="container">
+    <div className="container" style={{ fontFamily: "'Inter', sans-serif" }}>
       {!showFinalResult ? (
         <div className="card">
           <h1 className="title">Language Quiz</h1>

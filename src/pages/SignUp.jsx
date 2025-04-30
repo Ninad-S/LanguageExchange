@@ -158,6 +158,7 @@ const styles = {
     textAlign: 'center',
     background: '#fff',
     borderRadius: '8px',
+    fontFamily: 'Inter, sans-serif',
     boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
   },
   form: {
@@ -180,7 +181,7 @@ const styles = {
   button: {
     padding: '10px',
     border: 'none',
-    background: '#646cff',
+    background: '#6755d7',
     color: '#fff',
     borderRadius: '4px',
     cursor: 'pointer'

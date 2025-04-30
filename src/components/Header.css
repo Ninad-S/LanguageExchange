@@ -1,0 +1,228 @@
+header {
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-nav {
+    display: flex;
+    font-family: 'Inter', sans-serif;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.header-nav-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-nav-left a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-nav-left:hover {
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.header-logo {
+    height: 50px;
+}
+
+.header-logo-text {
+    height: 20px;
+}
+
+.header-nav-menu {
+    display: flex;
+
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+}
+
+.header-dropdown-wrapper.active .header-dropdown-button {
+  font-weight: bold;
+  background-color: #6755d7;
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 8px;
+}
+
+.header-dropdown-wrapper {
+    position: relative;
+    display: inline-block
+}
+
+.header-dropdown-wrapper:last-child .header-dropdown-menu {
+    left: auto;
+    right: 0;
+    transform: none;
+    top: calc(100% - 1px);
+}
+
+.header-dropdown-menu {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0;
+  /* Replace display: none with opacity/visibility for smoother transitions */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  /* Keep the rest of your styles */
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  list-style: none;
+  border-radius: 6px;
+  z-index: 200;
+  min-width: 160px;
+}
+
+.header-dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.header-dropdown-menu li {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.header-dropdown-menu li:last-child {
+    margin-bottom: 0;
+    align-items: center;
+}
+
+.header-dropdown-menu a {
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 12px;
+    display: block;
+    border-radius: 6px;
+}
+
+.header-dropdown-menu a:hover {
+    background-color: #e9e9e9;
+    color: #333;
+}
+
+.header-dropdown-button {
+    font-family: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    padding-top: 10px;
+    padding-bottom: 10px;   
+}
+
+.header-dropdown-button:hover {
+    opacity: 0.7;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.header-account-picture {
+    height: 50px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.header-account-picture:hover {
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.header-user-email {
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+}
+
+.header-logout-button {
+    text-decoration: none;
+    color: #333;
+    text-align: center;
+    font-size: 14px;
+    padding: 8px 12px;
+    display: block;
+    border-radius: 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    font-family: inherit;
+}
+
+.header-logout-button:hover {
+    background-color: #e9e9e9;
+    color: #333;
+
+}
+
+.header-account-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.header-login-button {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    background-color: #f9f9f9;
+    padding: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 2px solid #333;
+    list-style: none;
+    font-size: 15px;
+    font-weight: 400;
+    border-radius: 6px;
+    margin-top: 0;
+    z-index: 100;
+    margin-right: 4px;
+}
+
+.header-login-button:hover {
+    background-color: #e9e9e9;
+    color: #333;
+
+}
+
+.header-signup-button {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    background-color: #333;
+    padding: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 2px solid #535353;
+    list-style: none;
+    font-size: 15px;
+    color: #f9f9f9;
+    font-weight: 400;
+    border-radius: 6px;
+    margin-top: 0;
+    z-index: 100;
+}
+
+.header-signup-button:hover {
+    background-color: #222;
+    color: #e9e9e9;
+}

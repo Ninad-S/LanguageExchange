@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import CheckoutPage from "./pages/CheckoutPage";
 import ReturnPage from "./pages/ReturnPage";
+import HomePage from "./pages/HomePage";
 
 const stripePromise = loadStripe("pk_test_51REFy5BO4YYv1HibyNq4goyRpNeRYq2bEJKptkflwrzfYHjmcGLrGau3Zs0iYgyyd3pYWTsFP0hN7dxd77poNvzs00rUdgIyT3");
 
@@ -42,6 +43,7 @@ const App = () => {
     <Router>
       <Header />
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/find-partner" element={<FindPartner />} />
         <Route path="/manage-chats" element={<ManageChats />} />
         <Route path="/chat/:chatId" element={<Chat />} />
