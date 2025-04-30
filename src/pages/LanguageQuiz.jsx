@@ -79,14 +79,10 @@ const LanguageQuiz = () => {
           const existingData = questionsSnap.val();
           const existingQuestions = existingData ? Object.values(existingData) : [];
 
-          const existingSet = new Set (
-            existingQuestions.map(q => `${q.question}-${q.qLang}`)
-          );
+          const existingSet = new Set (existingQuestions.map(q => `${q.question}-${q.qLang}`));
 
           // creates a function to cprevent duplicate questions from be added to the database
-          const uniqueNewQuestions = wordToQuestion.filter(
-            q => !existingSet.has(`${q.question}-${q.qLang}`)
-          );
+          const uniqueNewQuestions = wordToQuestion.filter(q => !existingSet.has(`${q.question}-${q.qLang}`));
 
           // checks each questions to validate before adding to the database
           uniqueNewQuestions.forEach((question) => {
@@ -96,6 +92,7 @@ const LanguageQuiz = () => {
 
           // sets questions to state
           setNewQuestions(uniqueNewQuestions);
+          
         }, {
             onlyOnce: true 
         });
@@ -153,7 +150,7 @@ const LanguageQuiz = () => {
     setSelectedAnswerIndex(null);
 
     // move to the next question or finish quiz
-    if (currentQuestion + 1 < questions.length) {
+    if (currentQuestion + 1 < 5) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
       setShowFinalResult(true); // end of quiz
@@ -247,7 +244,7 @@ const LanguageQuiz = () => {
   const calcFinalScore = () => {
     // divide by total number of questions
     // multiply by 100 to get final percentage
-    return ((result.finalScore/questions.length) * 100);
+    return ((result.finalScore/5) * 100);
   };
 
   // function to compile all the quizzes taken into the database
@@ -399,7 +396,7 @@ const LanguageQuiz = () => {
             </button>
           </div>
           <div className="index">
-            Question {currentQuestion + 1} of {questions.length}
+            Question {currentQuestion + 1} of {5}
           </div>
         </div>
       ) : (
