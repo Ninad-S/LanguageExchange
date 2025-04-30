@@ -1,3 +1,4 @@
+
 // src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 //-------------Nevin: Leaderboard-------------------
 const checkLoginStreak = async (uid) => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
   const userRef = doc(db, 'Leaderboard', uid);
   const userSnap = await getDoc(userRef);
 
@@ -23,7 +24,7 @@ const checkLoginStreak = async (uid) => {
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  const yesterdayStr = yesterday.toLocaleDateString('en-CA');
 
   let newStreak = 1;
   let newPoints = data.points + 50;
@@ -39,7 +40,7 @@ const checkLoginStreak = async (uid) => {
     points: newPoints,
   });
 
-  console.log(`🔥 Streak updated! ${newStreak} days, ${newPoints} points`);
+  console.log(` Streak updated! ${newStreak} days, ${newPoints} points`);
 };
 //-------------Nevin: Leaderboard-------------------
 

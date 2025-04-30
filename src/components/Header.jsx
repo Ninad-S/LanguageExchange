@@ -32,7 +32,7 @@ const Header = () => {
             {showDropdown === 0 && (
               <ul style={{ position: 'absolute', backgroundColor: '#f9f9f9', padding: '10px', border: '1px solid #ccc', listStyle: 'none', fontSize: '15px', fontWeight: '400', borderRadius: '8px' }}>
                 <li style={{ marginBottom: '8px' }}><Link to="/find-partner" style={{ textDecoration: 'none', color: '#333' }}>Find a Partner</Link></li>
-                <li><Link to="/chat" style={{ textDecoration: 'none', color: '#333' }}>Chat</Link></li>
+                <li><Link to="/manage-chats" style={{ textDecoration: 'none', color: '#333' }}>Chats</Link></li>
               </ul>
             )}
           </li>

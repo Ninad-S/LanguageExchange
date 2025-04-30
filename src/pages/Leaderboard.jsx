@@ -8,7 +8,7 @@ Both the "Congratulate!" and "Add Friend" buttons work as seen in my test cases.
 
 import { useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { auth } from '../firebase';
 
 import React, { useState } from 'react';
@@ -86,24 +86,45 @@ const Leaderboard = () => {
   };
 
   const handleAddFriend = async (index) => {
-    const user = leaderboard[index];
+    const currentUID = auth.currentUser?.uid;
+    const targetUser = leaderboard[index];
   
+    if (!currentUID) {
+      alert("Please log in to send a friend request.");
+      return;
+    }
+    if (currentUID === targetUser.uid) {
+      alert("You can't send a friend request to yourself");
+      return;
+    }
+  
+    const newStatus = !targetUser.friendRequestSent;
+  
+    // Update the UI
     const updatedUser = {
-      ...user,
-      friendRequestSent: !user.friendRequestSent,
+      ...targetUser,
+      friendRequestSent: newStatus,
     };
-  
-    const newLeaderboard = [...leaderboard];
-    newLeaderboard[index] = updatedUser;
-    setLeaderboard(newLeaderboard);
+    const updatedLeaderboard = [...leaderboard];
+    updatedLeaderboard[index] = updatedUser;
+    setLeaderboard(updatedLeaderboard);
   
     try {
-      const userRef = doc(db, 'Leaderboard', user.id);
-      await updateDoc(userRef, {
-        friendRequestSent: updatedUser.friendRequestSent,
-      });
+      const targetRef = doc(db, 'users', targetUser.uid, 'friendRequests', currentUID);
+  
+      if (newStatus) {
+        await setDoc(targetRef, {
+          from: currentUID,
+          status: 'pending',
+          timestamp: new Date(),
+        });
+      } else {
+        await deleteDoc(targetRef);
+      }
+  
+      // no alert, just visual feedback through UI state
     } catch (error) {
-      console.error("Error updating friend request status:", error);
+      console.error('Failed to update friend request:', error);
     }
   };
 
@@ -126,7 +147,7 @@ const Leaderboard = () => {
           <div className="leaderboard-rank">{loggedInUserIndex + 1}</div>
 
           <div className="user-info">
-            <div className="avatar">{/* profile pic later */}</div>
+            <div className="avatar">{}</div>
             <div>
               <div className="user-name">{loggedInUser.name}</div>
               <div className="user-points">{loggedInUser.points} Points</div>

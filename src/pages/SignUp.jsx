@@ -25,9 +25,12 @@ const SignUp = () => {
       setUID(newUID);
       await setDoc(doc(db, 'users', newUID), {
         id: newUID,
+        email: email,
         name: email.split('@')[0],
         knownLangs: [],
-        learningLangs: []
+        learningLangs: [],
+        stripeCustomerId: null,
+        stripeSubscriptionId: null
       });
       
       //-------------Nevin: Leaderboard-------------------
@@ -37,7 +40,7 @@ const SignUp = () => {
         uid: newUID,
         points: 50,
         loginStreak: 1,
-        lastLoginDate: new Date().toISOString().split('T')[0],
+        lastLoginDate: new Date().toLocaleDateString('en-CA'),
         congratulations: 0,
         congratulatedBy: [],
         friendRequestSent: false,

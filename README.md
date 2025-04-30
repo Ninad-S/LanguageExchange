@@ -32,3 +32,11 @@ Team #3
 <h4>Statement of Work: </h4>
 Users will get the opportunity to learn a new language through a web application by connecting with native speakers of their desired language and exchanging their native language in return with the user of choice.
 >>>>>>> 895511e53a6b1e142a620b62e0d6a3a0b56badf2
+
+
+
+To run the program localy:
+1. Open code in VS code.
+2. Run the command, "npm run dev" on terminal.
+3. Paste the url on a web browser.
+Link to video instruction: https://drive.google.com/file/d/10nYj0Qg0dU4OOP9yO9CFfTVjfZ05P6_k/view?usp=sharing

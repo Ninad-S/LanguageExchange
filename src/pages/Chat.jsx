@@ -1,51 +1,73 @@
+import { useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useRef, useEffect } from 'react';
 import { rtdb } from '../firebase';
-import { ref, push, onValue } from 'firebase/database';
+import { ref, push, onValue, get, child } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
+import axios from 'axios';  // ✅ Add Axios to make HTTP requests
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [targetLang, setTargetLang] = useState('es');
+  const [currentUserId, setCurrentUserId] = useState('');
+  const [chatPath, setChatPath] = useState(null);
+
   const chatEndRef = useRef(null);
-  const chatId = 'user1_user2';
+  const { chatId } = useParams();
+  const navigate = useNavigate();
 
-  const sendMessage = async () => {
-    if (input.trim()) {
-      const originalText = input;
-      const messageRef = ref(rtdb, `messages/${chatId}`);
-
-      try {
-        const newMessage = {
-          text: originalText,
-          translation: '(Translation failed)', // ✅ fallback
-          lang: targetLang,
-          from: 'me',
-          timestamp: Date.now()
-        };
-
-        // Commented out actual translation for now
-        /*
-        const response = await axios.post('http://localhost:5001/translate', {
-          q: originalText,
-          source: 'en',
-          target: targetLang,
-          format: 'text'
-        });
-
-        newMessage.translation = response.data.translatedText;
-        */
-
-        push(messageRef, newMessage);
-        setInput('');
-      } catch (err) {
-        console.error("Translation error:", err);
-      }
-    }
-  };
+  const [userA, userB] = chatId.split('_');
 
   useEffect(() => {
-    const chatRef = ref(rtdb, `messages/${chatId}`);
+    const auth = getAuth();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setCurrentUserId(user.uid);
+      }
+    });
 
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const dbRef = ref(rtdb);
+
+    async function findChatPath() {
+      try {
+        const path1 = `messages/${userA}_${userB}`;
+        const path2 = `messages/${userB}_${userA}`;
+
+        const snapshot1 = await get(child(dbRef, path1));
+        if (snapshot1.exists()) {
+          setChatPath(path1);
+        } else {
+          const snapshot2 = await get(child(dbRef, path2));
+          if (snapshot2.exists()) {
+            setChatPath(path2);
+          } else {
+            const newPath = `messages/${userA}_${userB}`;
+            await push(ref(rtdb, newPath), {
+              text: "Chat started!",
+              translation: "¡Chat iniciado!",
+              lang: "en",
+              from: "system",
+              timestamp: Date.now()
+            });
+            setChatPath(newPath);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking chat paths:", error);
+      }
+    }
+
+    findChatPath();
+  }, [chatId, userA, userB]);
+
+  useEffect(() => {
+    if (!chatPath) return;
+
+    const chatRef = ref(rtdb, chatPath);
     const unsubscribe = onValue(chatRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -57,35 +79,85 @@ const Chat = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [chatPath]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const sendMessage = async () => {
+    if (input.trim() && chatPath && currentUserId) {
+      const originalText = input;
+      const messageRef = ref(rtdb, chatPath);
+
+      try {
+        // ✅ Send text to Flask API for translation
+        const response = await axios.post('http://localhost:5001/translate', {
+          text: originalText,
+          target: targetLang
+        });
+
+        const translatedText = response.data.translatedText || '(Translation failed)';
+
+        const newMessage = {
+          text: originalText,
+          translation: translatedText,
+          lang: targetLang,
+          from: currentUserId,
+          timestamp: Date.now()
+        };
+
+        push(messageRef, newMessage);
+        setInput('');
+      } catch (err) {
+        console.error("Error translating/sending message:", err);
+
+        // Fallback if translation API fails
+        const fallbackMessage = {
+          text: originalText,
+          translation: '(Translation failed)',
+          lang: targetLang,
+          from: currentUserId,
+          timestamp: Date.now()
+        };
+
+        push(messageRef, fallbackMessage);
+        setInput('');
+      }
+    }
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <button style={styles.backButton}>&larr;</button>
-        <div style={styles.headerText}>John Doe</div>
+        <button style={styles.backButton} onClick={() => navigate('/manage-chats')}>
+          &larr;
+        </button>
+        <div style={styles.headerText}>Chat</div>
         <div style={styles.avatar}>👤</div>
       </div>
 
       <div style={styles.chatBody}>
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            style={{
-              ...styles.message,
-              ...(msg.from === 'me' ? styles.myMessage : styles.theirMessage)
-            }}
-          >
-            <div>{msg.text}</div>
-            <small style={styles.translation}>
-              {msg.translation} ({languageLabel(msg.lang)})
-            </small>
-          </div>
-        ))}
+        {messages
+          .filter(msg => msg.from !== 'system')
+          .map((msg, index) => {
+            const isMyMessage = msg.from === currentUserId;
+
+            return (
+              <div
+                key={index}
+                style={{
+                  ...styles.message,
+                  ...(isMyMessage ? styles.myMessage : styles.theirMessage)
+                }}
+              >
+                <div>{msg.text}</div>
+                <small style={styles.translation}>
+                  {msg.translation} ({languageLabel(msg.lang)})
+                </small>
+              </div>
+            );
+          })}
         <div ref={chatEndRef} />
       </div>
 
@@ -104,7 +176,7 @@ const Chat = () => {
         </select>
         <input
           type="text"
-          placeholder="Send to John"
+          placeholder="Type your message"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           style={styles.input}

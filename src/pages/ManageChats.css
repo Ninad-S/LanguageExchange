@@ -1,0 +1,92 @@
+﻿.manage-chats-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tabs {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+}
+
+  .tabs button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    background-color: #eee;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+
+  .tabs .active {
+    background-color: #007bff;
+    color: white;
+  }
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  width: 100%; /* Ensure card width remains fixed */
+  margin-bottom: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chat-info {
+  flex: 1;
+  margin-left: 15px;
+}
+
+.chat-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.request-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-buttons button {
+  margin-left: 0.5rem;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.accept-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.decline-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.no-chats-msg {
+  text-align: center;
+  font-style: italic;
+  color: #777;
+}
+
+.profile-picture {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #D7B1DC;
+}
