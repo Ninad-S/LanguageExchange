@@ -181,7 +181,7 @@ const styles = {
     maxWidth: '800px',
     margin: '0 auto',
     padding: '20px',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: 'Inter, sans-serif',
   },
   welcome: {
     fontSize: '24px',        
@@ -219,7 +219,7 @@ const styles = {
     resize: 'vertical',
   },
   button: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#6755d7',
     color: '#fff',
     padding: '10px 20px',
     border: 'none',

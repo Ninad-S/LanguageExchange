@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { FaTrash } from 'react-icons/fa';
+import { FiMoreHorizontal } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, getDoc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, onSnapshot } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import './ManageChats.css';
 import defaultProfilePicture from './default-profile.png';
+import emptyChat from '../assets/empty-chat.svg';
 
-// 🔥 Helper function to always create sorted chatId
+// Helper function to always create sorted chatId
 function createChatId(user1, user2) {
   return [user1, user2].sort().join('_');
 }
@@ -16,94 +19,81 @@ const ManageChats = () => {
   const [chats, setChats] = useState([]);
   const [requests, setRequests] = useState([]);
   const [activeTab, setActiveTab] = useState('chats');
+  const [showMenuFor, setShowMenuFor] = useState(null); // NEW for tracking which chat menu is open
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const menuRef = useRef();
 
   // Load current user and fetch chats/requests
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
 
-          if (userDoc.exists()) {
-            const userData = userDoc.data();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const userRef = doc(db, 'users', user.uid);
+
+        const unsubscribeUser = onSnapshot(userRef, async (docSnap) => {
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
             setCurrentUser(userData);
 
-            // Set chats and requests
-            setChats(userData.chats || []);
-            setRequests(userData.chatRequests || []);
+            // Enrich chat requests
+            const enrichedRequests = await Promise.all(
+              (userData.chatRequests || []).map(async (req) => {
+                const senderDoc = await getDoc(doc(db, 'users', req.senderId));
+                if (senderDoc.exists()) {
+                  const senderData = senderDoc.data();
+                  return {
+                    ...req,
+                    senderName: senderData.name,
+                    profilePicture: senderData.profilePicture || defaultProfilePicture,
+                  };
+                }
+                return {
+                  ...req,
+                  senderName: 'Unknown User',
+                  profilePicture: defaultProfilePicture,
+                };
+              })
+            );
+            setRequests(enrichedRequests);
+
+            // Enrich chats
+            const enrichedChats = await Promise.all(
+              (userData.chats || []).map(async (otherUserId) => {
+                const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
+                if (otherUserDoc.exists()) {
+                  const otherUserData = otherUserDoc.data();
+                  return {
+                    id: otherUserId,
+                    name: otherUserData.name,
+                    profilePicture: otherUserData.profilePicture || defaultProfilePicture,
+                  };
+                }
+                return {
+                  id: otherUserId,
+                  name: 'Unknown User',
+                  profilePicture: defaultProfilePicture,
+                };
+              })
+            );
+            setChats(enrichedChats);
           }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        } finally {
-          setLoading(false);
-        }
+
+          setLoading(false); // Moved here to trigger only after doc loads
+        });
+
+        // Clean up Firestore listener
+        return () => unsubscribeUser();
       } else {
         console.warn('User is not authenticated');
         setLoading(false);
       }
     });
 
+    // Clean up Auth listener
     return () => unsubscribe();
   }, []);
-
-  // Fetch updated requests with sender names
-  useEffect(() => {
-    const fetchRequestsWithNames = async () => {
-      const updatedRequests = await Promise.all(
-        requests.map(async (req) => {
-          const senderDoc = await getDoc(doc(db, 'users', req.senderId));
-          if (senderDoc.exists()) {
-            const senderData = senderDoc.data();
-            return {
-              ...req,
-              senderName: senderData.name,
-              profilePicture: senderData.profilePicture || defaultProfilePicture,
-            };
-          }
-          return req;
-        })
-      );
-      setRequests(updatedRequests);
-    };
-
-    if (requests.length > 0) {
-      fetchRequestsWithNames();
-    }
-  }, [requests]);
-
-  // Fetch updated chats with user names
-  useEffect(() => {
-    const fetchChatsWithNames = async () => {
-      const updatedChats = await Promise.all(
-        chats.map(async (otherUserId) => {
-          const otherUserDoc = await getDoc(doc(db, 'users', otherUserId));
-          if (otherUserDoc.exists()) {
-            const otherUserData = otherUserDoc.data();
-            return {
-              id: otherUserId,
-              name: otherUserData.name,
-              profilePicture: otherUserData.profilePicture || defaultProfilePicture,
-            };
-          } else {
-            console.warn(`User document not found for ID: ${otherUserId}`);
-            return {
-              id: otherUserId,
-              name: 'Unknown User',
-              profilePicture: defaultProfilePicture,
-            };
-          }
-        })
-      );
-      setChats(updatedChats);
-    };
-
-    if (chats.length > 0 && currentUser) {
-      fetchChatsWithNames();
-    }
-  }, [chats, currentUser]);
 
   // Accept a chat request
   const acceptRequest = async (senderId) => {
@@ -119,12 +109,10 @@ const ManageChats = () => {
       const currentData = currentSnap.data();
       const senderData = senderSnap.data();
 
-      // Remove reverse request (from the other user to the current user)
       const updatedSenderRequests = senderData.chatRequests?.filter(
         (req) => req.senderId !== currentUser.id
       );
 
-      // Update both users' documents
       await Promise.all([
         updateDoc(currentUserRef, {
           chats: arrayUnion(senderId),
@@ -137,7 +125,14 @@ const ManageChats = () => {
       ]);
 
       setRequests((prev) => prev.filter((req) => req.senderId !== senderId));
-      setChats((prev) => [...prev, senderId]);
+      const newChat = {
+        id: senderId,
+        name: senderData.name,
+        profilePicture: senderData.profilePicture || defaultProfilePicture,
+      };
+
+      setChats((prev) => [...prev, newChat]);
+
     } catch (error) {
       console.error("Error accepting request:", error);
     }
@@ -145,14 +140,17 @@ const ManageChats = () => {
 
   // Decline a chat request
   const declineRequest = async (senderId) => {
+    if (!currentUser) return;
     const currentUserRef = doc(db, 'users', currentUser.id);
 
     try {
+      const updatedRequests = requests.filter((req) => req.senderId !== senderId);
+
       await updateDoc(currentUserRef, {
-        chatRequests: arrayRemove({ senderId }),
+        chatRequests: updatedRequests,
       });
 
-      setRequests((prev) => prev.filter((req) => req.senderId !== senderId));
+      setRequests(updatedRequests); // immediately update local state
     } catch (error) {
       console.error("Error declining request:", error);
     }
@@ -161,13 +159,43 @@ const ManageChats = () => {
   // Navigate to a chat
   const handleChatClick = (otherUserId) => {
     if (!currentUser) return;
-
     const chatId = createChatId(currentUser.id, otherUserId);
     navigate(`/chat/${chatId}`);
   };
 
+  // Delete a chat
+  const handleDeleteChat = async (otherUserId) => {
+    if (!currentUser) return;
+    try {
+      const userRef = doc(db, 'users', currentUser.id);
+
+      await updateDoc(userRef, {
+        chats: chats.filter(chat => chat.id !== otherUserId).map(chat => chat.id),
+      });
+
+      setChats((prev) => prev.filter((chat) => chat.id !== otherUserId));
+      setShowMenuFor(null); // Close menu after delete
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenuFor(null); // Close the menu
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   if (loading) return <p>Loading chats...</p>;
-  if (!currentUser) return <p>Please log in to view your chats.</p>;
+  if (!currentUser) return <p className="manage-chats-login">Please log in to view your chats.</p>;
 
   return (
     <div className="manage-chats-container">
@@ -183,6 +211,7 @@ const ManageChats = () => {
           onClick={() => setActiveTab('requests')}
         >
           Requests
+          {requests.length > 0 && <span className="notification-badge">{requests.length}</span>}
         </button>
       </div>
 
@@ -190,24 +219,38 @@ const ManageChats = () => {
         {activeTab === 'chats' && (
           chats.length > 0 ? (
             chats.map(({ id, name, profilePicture }) => (
-              <div key={id} className="chat-card" onClick={() => handleChatClick(id)}>
+              <div key={id} className="chat-card">
                 <img
                   src={profilePicture}
                   alt={`${name || 'User'}'s profile`}
-                  className="profile-picture"
+                  className="manage-chats-profile-picture"
+                  onClick={() => handleChatClick(id)}
                 />
-                <div className="chat-info">
+                <div className="chat-info" onClick={() => handleChatClick(id)}>
                   <div className="chat-name">{name || 'Unknown User'}</div>
-                  <div className="chat-preview">
-                    Say hello and start chatting!
-                  </div>
+                  <div className="chat-preview">Say hello and start chatting!</div>
+                </div>
+
+                {/* Three dots button */}
+                <div className="chat-options">
+                  <button className="options-button" onClick={() => setShowMenuFor(id)}>
+                    <FiMoreHorizontal className="options-icon" />
+                  </button>
+                  {showMenuFor === id && (
+                    <div className="options-menu" ref={menuRef}>
+                      <button className="delete-option" onClick={() => handleDeleteChat(id)}>
+                        <FaTrash /> Delete Conversation
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
           ) : (
-            <p className="no-chats-msg">
-              No existing chats available. Find matching partners to start a chat.
-            </p>
+            <div className="empty-state">
+              <img src={emptyChat} alt="No chats" className="empty-image" />
+              <p>No existing chats. Find partners to start chatting!</p>
+            </div>
           )
         )}
 
@@ -218,7 +261,7 @@ const ManageChats = () => {
                 <img
                   src={req.profilePicture}
                   alt={`${req.senderName || 'User'}'s profile`}
-                  className="profile-picture"
+                  className="manage-chats-profile-picture"
                 />
                 <div className="chat-info">
                   <div className="chat-name">{req.senderName || 'Unknown'}</div>
@@ -231,7 +274,10 @@ const ManageChats = () => {
               </div>
             ))
           ) : (
-            <p className="no-chats-msg">No pending chat requests.</p>
+            <div className="empty-state">
+              <img src={emptyChat} alt="No requests" className="empty-image" />
+              <p>No pending chat requests.</p>
+            </div>
           )
         )}
       </div>
