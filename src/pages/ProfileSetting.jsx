@@ -4,29 +4,19 @@
 // TC1: Delete Account
 // TC2: Update Bio
 // TC3: Toggle Profile Visibility
-// src/pages/ProfileSetting.jsx
-import { auth, db } from '../firebase';
+
 import React, { useEffect, useState } from 'react';
-import './ProfileSetting.css'; // <-- your css file
+import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { deleteUser } from 'firebase/auth';
 
 const ProfileSetting = () => {
-  // ================= STATE =================
+  // ========== STATE ==========
   const [userBio, setUserBio] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
   const [visibility, setVisibility] = useState(true);
-  const [activeSection, setActiveSection] = useState('manageAccount'); // <-- for switching pages
 
-// Language Management
-
-  const [knownLanguages, setKnownLanguages] = useState(["English"]);
-const [targetLanguages, setTargetLanguages] = useState(["Spanish"]);
-const [inProgressLanguages, setInProgressLanguages] = useState(["French"]);
-
-const [showDropdown, setShowDropdown] = useState({ known: false, target: false, progress: false });
-const languageOptions = ["English", "Spanish", "French", "German", "Japanese", "Mandarin"];
-
-  // ================= LOAD USER DATA =================
+  // ========== LOAD USER DATA (on mount) ==========
   useEffect(() => {
     const fetchUserData = async () => {
       const user = auth.currentUser;
@@ -34,13 +24,14 @@ const languageOptions = ["English", "Spanish", "French", "German", "Japanese", "
         console.warn('No user is currently logged in');
         return;
       }
-      setCurrentUserId(user.uid);
 
+      setCurrentUserId(user.uid);
       const userRef = doc(db, 'users', user.uid);
       const userSnapshot = await getDoc(userRef);
 
       if (userSnapshot.exists()) {
         const data = userSnapshot.data();
+        console.log('User data loaded:', data);
         setUserBio(data.bio || '');
         setVisibility(data.visibility ?? true); // default to public
       } else {
@@ -51,51 +42,70 @@ const languageOptions = ["English", "Spanish", "French", "German", "Japanese", "
     fetchUserData();
   }, []);
 
-  // ================= TC2: Update User Bio =================
+  // ========== TC2: Update User Bio ==========
   const updateUserBio = async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) {
+      console.warn('User ID not set when trying to update bio');
+      return;
+    }
 
     try {
-      await updateDoc(doc(db, 'users', currentUserId), {
-        bio: userBio,
-      });
+      await updateDoc(doc(db, 'users', currentUserId), { bio: userBio });
       alert('Your bio was updated!');
     } catch (err) {
-      console.error('Bio update failed: ', err);
+      console.error('Bio update failed:', err);
     }
   };
 
-  // ================= TC3: Toggle Profile Visibility =================
+  // ========== TC3: Toggle Profile Visibility ==========
+  /*
   const toggleVisibility = async () => {
-    if (!currentUserId) return;
+    console.log('Toggling visibility from', visibility, 'to', !visibility);
 
-    const newVisibility = !visibility;
+    if (!currentUserId) {
+      console.warn('User ID not set when trying to toggle visibility');
+      return;
+    }
 
     try {
       await updateDoc(doc(db, 'users', currentUserId), {
-        visibility: newVisibility,
+        visibility: !visibility,
       });
-      setVisibility(newVisibility);
-      alert(`Profile visibility set to ${newVisibility ? 'Public' : 'Private'}`);
+      setVisibility(!visibility);
+      alert(`Profile visibility set to ${!visibility ? 'Public' : 'Private'}`);
     } catch (err) {
-      console.error('Error updating visibility: ', err);
-      alert('There was an error updating your visibility in the database.');
+      console.error('Error updating visibility:', err);
     }
   };
-const addLanguage = (section, language) => {
-  if (!language) return;
-  if (section === 'known') setKnownLanguages(prev => [...prev, language]);
-  if (section === 'target') setTargetLanguages(prev => [...prev, language]);
-  if (section === 'progress') setInProgressLanguages(prev => [...prev, language]);
+*/
+
+const toggleVisibility = async () => {
+  if (!currentUserId) {
+    console.warn('User ID not set when trying to toggle visibility');
+    return;
+  }
+
+  const newVisibility = !visibility;
+
+  try {
+    console.log('Updating visibility to:', newVisibility);
+
+    await updateDoc(doc(db, 'users', currentUserId), {
+      visibility: newVisibility,
+    });
+
+    setVisibility(newVisibility); // update local state AFTER successful update
+    alert(`Profile visibility set to ${newVisibility ? 'Public' : 'Private'}`);
+  } catch (err) {
+    console.error('Error updating visibility:', err);
+    alert('There was an error updating your visibility in the database.');
+  }
 };
 
-const removeLanguage = (section, language) => {
-  if (section === 'known') setKnownLanguages(prev => prev.filter(l => l !== language));
-  if (section === 'target') setTargetLanguages(prev => prev.filter(l => l !== language));
-  if (section === 'progress') setInProgressLanguages(prev => prev.filter(l => l !== language));
-};
 
-  // ================= TC1: Delete Account =================
+
+
+  // ========== TC1: Delete Account ==========
   const confirmAndDeleteAccount = async () => {
     const user = auth.currentUser;
     if (!user) {
@@ -103,12 +113,14 @@ const removeLanguage = (section, language) => {
       return;
     }
 
-    const confirmDelete = window.confirm('Delete your account permanently? This action cannot be undone.');
+    const confirmDelete = window.confirm(
+      'Delete your account permanently? This action cannot be undone.'
+    );
     if (!confirmDelete) return;
 
     try {
       await deleteDoc(doc(db, 'users', user.uid));
-      await user.delete();
+      await deleteUser(user);
       alert('Account successfully deleted.');
     } catch (err) {
       console.error('Deletion error:', err);
@@ -116,179 +128,57 @@ const removeLanguage = (section, language) => {
     }
   };
 
-  // ================= FRONTEND LAYOUT JSX =================
+  // ========== FRONTEND JSX ==========
   return (
-    <div className="profile-settings-container">
-      {/* Manage Account Section */}
-      {activeSection === 'manageAccount' && (
-        <div className="manage-account">
-          <h1>Manage Account</h1>
-          <div className="button-grid">
-            <button onClick={() => setActiveSection('profile')}>Profile</button>
-          </div>
-        </div>
-      )}
+    <div style={{ padding: '20px' }}>
+      <h1>Profile Settings</h1>
 
-      {/* Profile Page Section */}
-      {activeSection === 'profile' && (
-        <div className="profile-page">
-          <button
-            className="back-button"
-            onClick={() => setActiveSection('manageAccount')}
-          >
-            ← Back
-          </button>
+      {/* === Bio Update Section === */}
+      <div style={{ marginBottom: '24px' }}>
+        <label htmlFor="bio">Bio</label>
+        <br />
+        <textarea
+          id="bio"
+          rows="4"
+          cols="50"
+          value={userBio}
+          onChange={(e) => setUserBio(e.target.value)}
+          placeholder="Tell us about yourself."
+        />
+        <br />
+        <button onClick={updateUserBio}>Save Bio</button>
+      </div>
 
-          <h1>Profile</h1>
-
-          <div className="profile-content">
-            {/* Left side */}
-            <div className="left-section">
-              <div className="bio-section">
-                <label htmlFor="bio">Bio:</label>
-                <textarea
-                  id="bio"
-                  rows="4"
-                  cols="50"
-                  value={userBio}
-                  onChange={(e) => setUserBio(e.target.value)}
-                  placeholder="Tell us about yourself."
-                />
-                <button onClick={updateUserBio}>Save Bio</button>
-              </div>
-
-              <div className="languages-section">
-              
- <h3>
-  Known Languages:
-  <button onClick={() => setShowDropdown({ ...showDropdown, known: !showDropdown.known })}>➕</button>
-</h3>
-
-{knownLanguages.map((lang, index) => (
-  <button key={index}>
-    {lang}
-    <span onClick={() => setKnownLanguages(knownLanguages.filter((l) => l !== lang))} style={{ marginLeft: '6px', color: 'red' }}>✖</span>
-  </button>
-))}
-
-{showDropdown.known && (
-  <select onChange={(e) => {
-    const selected = e.target.value;
-    if (selected && !knownLanguages.includes(selected)) {
-      setKnownLanguages([...knownLanguages, selected]);
-    }
-  }}>
-    <option value="">Select a language</option>
-    {languageOptions.map((lang) => (
-      <option key={lang} value={lang}>{lang}</option>
-    ))}
-  </select>
-)}
+      {/* === Visibility Toggle Section === */}
+      
+      
+      <div style={{ marginBottom: '24px' }}>
+  <label>
+    <input
+      type="checkbox"
+      checked={visibility}
+      onChange={toggleVisibility}
+    />
+    {' '}Profile is {visibility ? 'Public' : 'Private'}
+  </label>
+</div>
 
 
- <h3>
-  Target Languages:
-  <button onClick={() => setShowDropdown({ ...showDropdown, target: !showDropdown.target })}>➕</button>
-</h3>
-
-{targetLanguages.map((lang, index) => (
-  <button key={index}>
-    {lang}
-    <span onClick={() => setTargetLanguages(targetLanguages.filter((l) => l !== lang))} style={{ marginLeft: '6px', color: 'red' }}>✖</span>
-  </button>
-))}
-
-{showDropdown.target && (
-  <select onChange={(e) => {
-    const selected = e.target.value;
-    if (selected && !targetLanguages.includes(selected)) {
-      setTargetLanguages([...targetLanguages, selected]);
-    }
-  }}>
-    <option value="">Select a language</option>
-    {languageOptions.map((lang) => (
-      <option key={lang} value={lang}>{lang}</option>
-    ))}
-  </select>
-)}
-
-
-<h3>
-  In Progress:
-  <button onClick={() => setShowDropdown({ ...showDropdown, progress: !showDropdown.progress })}>➕</button>
-</h3>
-
-{inProgressLanguages.map((lang, index) => (
-  <button key={index}>
-    {lang}
-    <span onClick={() => setInProgressLanguages(inProgressLanguages.filter((l) => l !== lang))} style={{ marginLeft: '6px', color: 'red' }}>✖</span>
-  </button>
-))}
-
-{showDropdown.progress && (
-  <select onChange={(e) => {
-    const selected = e.target.value;
-    if (selected && !inProgressLanguages.includes(selected)) {
-      setInProgressLanguages([...inProgressLanguages, selected]);
-    }
-  }}>
-    <option value="">Select a language</option>
-    {languageOptions.map((lang) => (
-      <option key={lang} value={lang}>{lang}</option>
-    ))}
-  </select>
-)}
-
-              </div>
-
-              <div className="privacy-toggle">
-                <h3>Privacy Setting:</h3>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={!visibility}
-                    onChange={toggleVisibility}
-                  />
-                  {visibility ? 'Public Profile' : 'Private Profile'}
-                </label>
-              </div>
-
-              <div className="delete-account">
-                <button
-                  style={{
-                    backgroundColor: '#e74c3c',
-                    color: 'white',
-                    padding: '10px 20px',
-                    marginTop: '20px',
-                    border: 'none',
-                    borderRadius: '10px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={confirmAndDeleteAccount}
-                >
-                  Delete Account
-                </button>
-              </div>
-            </div>
-
-            {/* Right side */}
-            <div className="right-section">
-              <h3>Friends:</h3>
-              <ul>
-                <li>John Doe</li>
-                <li>John Doe</li>
-                <li>John Doe</li>
-              </ul>
-
-              <h3>Suggestions:</h3>
-              <ul>
-                <li>John Doe</li>
-                <li>John Doe</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* === Delete Account Section === */}
+      <div>
+        <button
+          style={{
+            backgroundColor: '#e74c3c',
+            color: 'white',
+            padding: '8px 12px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+          onClick={confirmAndDeleteAccount}
+        >
+          Delete Account
+        </button>
+      </div>
     </div>
   );
 };
