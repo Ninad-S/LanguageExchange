@@ -1,29 +1,12 @@
 import express from 'express';
 import Stripe from 'stripe';
 import cors from 'cors';
-import 'dotenv/config'
 
 const app = express();
-
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY is missing from environment variables');
-}
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-08-16' // Specify API version
-});
+const stripe = new Stripe('sk_test_51REFy5BO4YYv1Hib17cO1JtZEB3dOIq5Xi4Db8MaXeULOJb2njMfSny2yflkwYrYCeDdScnsXEYmVp2cCRWkxV1x00dqgHUOUh');
 
 app.use(cors());
 app.use(express.json());
-
-(async () => {
-  try {
-    await stripe.paymentMethods.list({ limit: 1 });
-    console.log('✅ Stripe connection verified');
-  } catch (err) {
-    console.error('❌ Stripe connection failed:', err.message);
-  }
-})();
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
