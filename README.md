@@ -1,25 +1,13 @@
-<<<<<<< HEAD
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-=======
+# LanguageMate
 Class: 3354.002
-<br>Professor: Srimathi Srinivasan
 
-<h2>Team Details:</h2>
+*Professor: Srimathi Srinivasan*
+
+## Team Details:
 Team #3
-<br>Team Name: GlobaLingo
-<br><h4>Team names: </h4>
 
+Team Name: GlobaLingo
+#### Team Members:
 - Dandan Wang
 - Nevin Shiju
 - Maggie Buvanendiran
@@ -29,14 +17,12 @@ Team #3
 - Rumaisa Bhatti
 - Alix Majalca
 
-<h4>Statement of Work: </h4>
+#### Statement of Work:
 Users will get the opportunity to learn a new language through a web application by connecting with native speakers of their desired language and exchanging their native language in return with the user of choice.
->>>>>>> 895511e53a6b1e142a620b62e0d6a3a0b56badf2
 
+#### To run the program localy:
+1. Open code in VS Code.
+2. Run the command `npm run dev` in the terminal.
+3. Paste the given URL into a web browser.
 
-
-To run the program localy:
-1. Open code in VS code.
-2. Run the command, "npm run dev" on terminal.
-3. Paste the url on a web browser.
-Link to video instruction: https://drive.google.com/file/d/180tlXVqrkYOV1JBpej7fnmm3ENLtgyio/view?usp=sharing
+[**Link to overview video.**](https://drive.google.com/file/d/1gpttnztCjfNLhKqca20RgzCT9lQo7o3b/view?usp=drivesdk)
