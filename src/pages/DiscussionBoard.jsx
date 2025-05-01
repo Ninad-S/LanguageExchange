@@ -181,6 +181,7 @@ const styles = {
     margin: '0 auto',
     padding: '20px',
     fontFamily: 'Inter, sans-serif',
+    backgroundColor: '#fdfbff'
   },
   welcome: {
     fontSize: '24px',        

@@ -210,7 +210,7 @@ const renderPlans = () => {
         <p className="price">
           ${plan.prices[0].price / 100} {plan.id === 'free_plan' ? '' : '/ mo'}
         </p>
-        <ul className="features">
+        <ul className="pricing-features">
           {plan.description.split('\n').map((feature, i) => (
             <li key={i}>{feature}</li>
           ))}

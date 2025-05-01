@@ -1,5 +1,5 @@
 .pricing-container {
-  font-family: Arial, sans-serif;
+  font-family: Inter, sans-serif;
   max-width: 1200px;
   min-height: 100vh; /* Make container full viewport height */
   display: flex;
@@ -27,40 +27,40 @@
   gap: 30px;
   margin: auto 0; /* This will center vertically in remaining space */
   padding: 20px 0;
+  height: 350px;
 }
 
 .plan-card1 {
-  background-color:#b86bb9;
+  background-color: #655ab5;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   width: 250px;
   text-align: center;
-  color:white;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  box-shadow: 0px 0px 10px 15px rgba(0, 0, 0, 0.1);
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .plan-card2 {
-  background-color:#283B66;
+  background-color: #27447B;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   width: 250px;
   text-align: center;
-  color:white;
-  box-shadow: 0px 0px 10px 15px rgba(0, 0, 0, 0.1);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .plan-card3 {
-  background-color:#8391AE;
+  background-color: #2B83D0;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 20px;
   width: 250px;
   text-align: center;
-  color:white;
-  box-shadow: 0px 0px 10px 15px rgba(0, 0, 0, 0.1);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .plan-card h2 {
@@ -74,20 +74,20 @@
   margin: 15px 0;
 }
 
-.features {
+.pricing-features {
   list-style: none;
   padding: 0;
   text-align: left;
-  margin: 20px 0;
+  margin-top: 40px;
 }
 
-.features li {
+.pricing-features li {
   margin-bottom: 10px;
   padding-left: 20px;
   position: relative;
 }
 
-.features li:before {
+.pricing-features li:before {
   content: "•";
   position: absolute;
   left: 0;

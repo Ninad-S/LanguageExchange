@@ -1,11 +1,11 @@
 .container {
-    width: 100%;
-    height: 100vh;
-    background: rgb(246, 247, 255);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+  width: 100%;
+  height: 100vh;
+  background: #fdfbff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .card {

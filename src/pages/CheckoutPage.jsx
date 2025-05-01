@@ -28,12 +28,23 @@ const CheckoutPage = () => {
   if (loading) return <div>Loading checkout...</div>;
 
   return (
-    <div className="subscription-container">
+    <div
+      className="subscription-container"
+      style={{
+        maxWidth: '700px',
+        margin: '40px auto',
+        padding: '30px',
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+      }}
+    >
       <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret }}>
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
     </div>
   );
+
 };
 
 export default CheckoutPage;

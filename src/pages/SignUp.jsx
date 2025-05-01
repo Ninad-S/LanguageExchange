@@ -186,7 +186,6 @@ const styles = {
   langSection: {
     textAlign: 'left',
     padding: '10px',
-    backgroundColor: '#f5f5f5',
     borderRadius: '6px'
   },
   checkboxLabel: {

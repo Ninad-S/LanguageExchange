@@ -19,7 +19,7 @@ html, body {
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  background: linear-gradient(to bottom, #ffffff, #f0dafa, #cfaaf6, #a08de1);
+  background: linear-gradient(to bottom, transparent, #f0dafa, #cfaaf6, #a08de1);
 }
 
 .homepage-main-content {

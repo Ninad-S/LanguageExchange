@@ -1,9 +1,13 @@
+body {
+  background-color: #fdfbff;
+}
+
 header {
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: white;
+  background-color: transparent;
   font-family: 'Inter', sans-serif;
 }
 

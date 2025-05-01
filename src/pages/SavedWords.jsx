@@ -62,7 +62,7 @@ const SavedWords = () => {
       maxWidth: '100%',
       margin: '0 auto',
       padding: '100px 24px 40px',
-      backgroundColor: '#f9f9fb',
+      backgroundColor: '#fdfbff',
       minHeight: '100vh',
       fontFamily: 'Inter, sans-serif'
     }}>
