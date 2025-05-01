@@ -7,7 +7,6 @@ import { doc, updateDoc, getDoc } from 'firebase/firestore';
 import { app, db, auth } from '../firebase';
 import './LanguageQuiz.css';
 
-
 // This holds the primary working code where the language quiz will show up on the front end.
 const LanguageQuiz = () => {
   // set the counter for the variable that keeps track of the current question and sets it to the default number of 0
@@ -32,9 +31,9 @@ const LanguageQuiz = () => {
   const [newQuestions, setNewQuestions] = useState([]);
 
   //import user's language preferences to generate questions for the quiz
-  const [LanguagePrefs, setLanguagePrefs] = useState([]);
+  const [languagePrefs, setLanguagePrefs] = useState([]);
 
-  //extracts the user language preference data from the database to be used in determining quiz questions
+   //extracts the user language preference data from the database to be used in determining quiz questions
   useEffect(() => {
     const getUserLanguage = async () => {
       const user = auth.currentUser;
@@ -46,26 +45,18 @@ const LanguageQuiz = () => {
         //checks if data in the snapshot exists to set the langugae preferences for the quiz questions
         if(userSnap.exists()) {
           const data = userSnap.data();
-          setLanguagePrefs(data.LanguagePrefs || []);
+          setLanguagePrefs(data.learningLangs || []);
         }
       }
     };
     getUserLanguage();
   }, []);
-  
-  //checks for duplicates in the question db
-  const isDuplicateQuestion = (newQuestion, existingQuestions) => {
-    return existingQuestions.some(
-      (q) =>
-        q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
-        q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
-    );
-  };
 
   //import words from saved word bank to be used in quiz
   useEffect(() => {
     const db = getDatabase(app); 
     const wordsRef = ref(db, 'savedUsers/testuser'); 
+    const questionsRef = ref(db, 'questions');
 
     onValue(wordsRef, (snapshot) => {
       // get the data object
@@ -83,35 +74,46 @@ const LanguageQuiz = () => {
           qLang: item.language,
         }));
 
-        //duplicate checking in the array
-        const filtered = wordToQuestion.filter((newQuestion) =>
-          !isDuplicateQuestion(newQuestion, questions)
-        );
+        // adds questions to the database to be used in the future
+        onValue(questionsRef, (questionsSnap) => {
+          const existingData = questionsSnap.val();
+          const existingQuestions = existingData ? Object.values(existingData) : [];
 
-        // save to state
-        setNewQuestions(prevQuestions => [...prevQuestions, ...filtered]);
+          const existingSet = new Set (
+            existingQuestions.map(q => `${q.question}-${q.qLang}`)
+          );
+
+          // creates a function to cprevent duplicate questions from be added to the database
+          const uniqueNewQuestions = wordToQuestion.filter(
+            q => !existingSet.has(`${q.question}-${q.qLang}`)
+          );
+
+          // checks each questions to validate before adding to the database
+          uniqueNewQuestions.forEach((question) => {
+            const newQuestionRef = push(questionsRef);
+            set(newQuestionRef, question);
+          });
+
+          // sets questions to state
+          setNewQuestions(uniqueNewQuestions);
+        }, {
+            onlyOnce: true 
+        });
       }
     });
   }, []);
-
-  //combines the saved word questions to the quiz question db
+  //combines the saved word questions to the quiz question list
   useEffect(() => {
-    setQuestions((prev) => {
-
-      // combines new questions with the existing questions
-      const allQuestions = [...prev, ...newQuestions];
-  
-      // filters out duplicate questions
-      const uniqueQuestions = allQuestions.filter((newQuestion, index, self) =>
-        index === self.findIndex((q) =>
-          q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
-          q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
-        )
+    setQuestions((prevQuestions) => {
+      const existingSet = new Set(prevQuestions.map(q => `${q.question}-${q.qLang}`));
+      
+      const filteredNewQuestions = newQuestions.filter(q =>
+        !existingSet.has(`${q.question}-${q.qLang}`)
       );
   
-      return uniqueQuestions.sort(() => Math.random() - 0.5); 
+      return [...prevQuestions, ...filteredNewQuestions].sort(() => Math.random() - 0.5);
     });
-  }, [newQuestions]); 
+  }, [newQuestions]);
   
 
   // uses the function to receive questions and answers from the database to be used in the quiz
@@ -122,7 +124,7 @@ const LanguageQuiz = () => {
     const questionsRef = ref(db, 'questions'); 
   
     // fetch and listen to changes in the "questions" node
-    onValue(questionsRef, async (snapshot) => {
+    onValue(questionsRef, (snapshot) => {
       // get the data object
       const data = snapshot.val(); 
       // check if there's data in the database
@@ -131,27 +133,15 @@ const LanguageQuiz = () => {
         const totalQ = Object.values(data);
         // filter by the language preferences
         const filteredQuestions = totalQ.filter(question => 
-          LanguagePrefs.includes(question.qLang) 
+          languagePrefs.includes(question.qLang) 
         );
         // shuffle the questions so they will be randomly given
-        const shuffle = (prevQuestions => [...prevQuestions, ...filteredQuestions].sort(() => Math.random() - 0.5));
+        const shuffle = totalQ.sort(() => Math.random() - 0.2);
         // save to state
         setQuestions(shuffle); 
       }
-
-       // filters out duplicate questions
-       const uniqueQuestions = allQuestions.filter((newQuestion, index, self) =>
-       index === self.findIndex((q) =>
-         q.question.toLowerCase().trim() === newQuestion.question.toLowerCase().trim() &&
-         q.qLang.toLowerCase().trim() === newQuestion.qLang.toLowerCase().trim()
-       )
-     );
-
-      for(const newQuestion of uniqueQuestions) {
-        const newQuestionsRef = push(questionsRef);
-      }
     });
-  }, [LanguagePrefs]);
+  }, [languagePrefs]);
 
   // function that lets user move on to the next question
   const nextButton = () => {
@@ -169,12 +159,28 @@ const LanguageQuiz = () => {
       setShowFinalResult(true); // end of quiz
     }
   };
+
+  // function that lets user move to the last question
+  const prevButton = () => {
+    // move to the last question or finish quiz
+    if (currentQuestion > 0) {
+      setCurrentQuestion((prev) => prev - 1);
+    } 
+  };
   
   // function that validates if the user's input is correct
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
-  const [correct, setCorrect] = useState(false); ;
+  const [correct, setCorrect] = useState(false); 
+
   const checkAnswer = () => {
+    //assigns current question to constant
     const current = questions[currentQuestion];
+
+    //error checking
+    if(!current) {
+      return;
+    }
+
     //checks correct answer for both mcq's and short answer questions by lowercasing the answer
     const correctAnswer = current?.answerKey?.toLowerCase().trim();
     //checks user answers for short answers by lowercasing all user inputs
@@ -306,7 +312,7 @@ const LanguageQuiz = () => {
   };
 
   // extract the current question and its fields from the array safely
-  const current = questions[currentQuestion];
+  const current = questions?.[currentQuestion];
   const question = current?.question;
   const answers = current?.answers || [];
   const questionType = current?.questionType;
@@ -353,27 +359,29 @@ const LanguageQuiz = () => {
   // There are placeholders currently set for the question, the answer choices and the answer along with the max number of questions to be received from the database  
   // There is also the Quiz results shown after the quiz is taken to show the resulting score and which questions are correct and incorrect
   return (
-    <div className="container" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="container">
       {!showFinalResult ? (
         <div className="card">
           <h1 className="title">Language Quiz</h1>
           <div>
             <h2 className="question">{question}</h2>
             {questionType === 'MCQ' ? (
-              <ul className='text'>
-                {answers.map((item, index) => (
-                  <button
-                    className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
-                    key={index}
-                    onClick={() => {
-                      setSelectedAnswer(item);
-                      setSelectedAnswerIndex(index);
-                    }}
-                  >
-                    {item}
-                  </button>
-                ))}
-              </ul>
+              <div className="list">
+                <ul className="list">
+                  {answers.map((item, index) => (
+                    <button
+                      className={`option ${selectedAnswerIndex === index ? 'selected' : ''}`}
+                      key={index}
+                      onClick={() => {
+                        setSelectedAnswer(item);
+                        setSelectedAnswerIndex(index);
+                      }}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </ul>
+              </div>
             ) : (
               <input
                 className="searchBar"
@@ -385,6 +393,9 @@ const LanguageQuiz = () => {
             )}
             <button className="nextButton" onClick={nextButton}>
               Next
+            </button>
+            <button className="nextButton" onClick={prevButton}>
+              Back
             </button>
           </div>
           <div className="index">

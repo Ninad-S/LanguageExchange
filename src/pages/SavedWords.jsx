@@ -63,8 +63,8 @@ const SavedWords = () => {
       margin: '0 auto',
       padding: '100px 24px 40px',
       backgroundColor: '#f9f9fb',
-      fontFamily: 'Inter, sans-serif',
-      minHeight: '100vh'
+      minHeight: '100vh',
+      fontFamily: 'Inter, sans-serif'
     }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>

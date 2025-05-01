@@ -1,4 +1,3 @@
-// src/pages/DiscussionBoard.jsx
 import React, { useEffect, useState } from 'react';
 import {
   collection,

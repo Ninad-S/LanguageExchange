@@ -1,0 +1,86 @@
+/* ReturnPage.css - Scoped styles only for this component */
+
+/* Container styles - won't affect other pages */
+.return-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
+    border: 1px solid #e1e4e8;
+  }
+  
+  /* Success specific styles */
+  .return-container.success h2 {
+    color: #2c3e50; /* Only affects h2 inside success container */
+  }
+  
+  .return-container.success p {
+    color: #666; /* Only affects p tags inside success container */
+  }
+  
+  /* Error specific styles */
+  .return-container.error {
+    background-color: #fff8f8;
+    border-color: #ffdddd;
+  }
+  
+  .return-container.error h2 {
+    color: #dc3545;
+  }
+  
+  /* Loading spinner */
+  .return-container.loading .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    border-top-color: #000;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+  }
+  
+  /* Success icon */
+  .success-icon {
+    font-size: 48px;
+    color: #28a745;
+    margin-bottom: 1rem;
+  }
+  
+  /* Tier info text */
+  .tier-info {
+    font-size: 1.1rem;
+    color: #2c3e50; /* Only affects this specific class */
+  }
+  
+  .tier-info strong {
+    color: #28a745;
+  }
+  
+  /* Button styles - scoped to this component */
+  .action-button {
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+    margin-top: 1rem;
+  }
+  
+  .action-button:hover {
+    background-color: #333;
+    transform: translateY(-2px);
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }

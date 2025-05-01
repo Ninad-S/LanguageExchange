@@ -1,5 +1,5 @@
 .pricing-container {
-  font-family: 'Inter', sans-serif;
+  font-family: Arial, sans-serif;
   max-width: 1200px;
   min-height: 100vh; /* Make container full viewport height */
   display: flex;
@@ -123,6 +123,49 @@
   box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
 }
 
+/* Update the proceed button styles */
+.proceed-button {
+  width: 100%;
+  max-width: 400px; /* Adjust as needed */
+  padding: 15px 0;
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 20px auto;
+  display: block;
+  text-align: center;
+}
+
+.proceed-button:hover:not(.disabled) {
+  background-color: #333;
+  transform: translateY(-2px);
+}
+
+.proceed-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Spinner styling */
+.proceed-button .spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 
 
 

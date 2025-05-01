@@ -1,5 +1,3 @@
-// src/pages/Leaderboard.jsx
-// Nevin Shiju
 /*
 I have implemented a base layout of the leaderboard page for our app.
 The leaderboard is displayed with data I inputted for now.
@@ -10,6 +8,7 @@ import { useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs, doc, setDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { auth } from '../firebase';
+import defaultProfilePicture from './default-profile.png';
 
 import React, { useState } from 'react';
 import './Leaderboard.css';
@@ -177,7 +176,11 @@ const Leaderboard = () => {
 
               <div className="user-info">
                 <div className="avatar">
-                  {/* add profile pic later */}
+                  <img
+                    src={user.profilePicture || defaultProfilePicture}
+                    alt={`${user.name}'s profile`}
+                    className="avatar"
+                  />
                 </div>
                 <div>
                   <div className="user-name">{user.name}</div>
